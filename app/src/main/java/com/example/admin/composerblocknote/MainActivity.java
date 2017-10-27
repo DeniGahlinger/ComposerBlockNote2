@@ -47,8 +47,11 @@ public class MainActivity extends AppCompatActivity {
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                songName.add("a");
-                adapterlst.notifyDataSetChanged();
+                Intent intent = new Intent(MainActivity.this, InitNoteActivity.class);
+                intent.putExtra("isNewSong", "yess");
+                startActivity(intent);
+                //songName.add("a");
+                //adapterlst.notifyDataSetChanged();
                 //Intent newSong = new Intent(this, );
             }
         });

@@ -35,7 +35,7 @@ public class PartNavigatorActivity extends AppCompatActivity {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(PartNavigatorActivity.this, PartNavigatorActivity.class);
+                Intent intent = new Intent(PartNavigatorActivity.this, InitNoteActivity.class);
                 intent.putExtra("songName", partName.get(position));
                 startActivity(intent);
             }
@@ -43,8 +43,11 @@ public class PartNavigatorActivity extends AppCompatActivity {
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                partName.add("a");
-                adapterlst.notifyDataSetChanged();
+                Intent intent = new Intent(PartNavigatorActivity.this, InitNoteActivity.class);
+                intent.putExtra("isNewSong", "yes");
+                startActivity(intent);
+                //partName.add("a");
+                //adapterlst.notifyDataSetChanged();
                 //Intent newSong = new Intent(this, );
             }
         });
