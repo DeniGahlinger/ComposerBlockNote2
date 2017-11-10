@@ -27,7 +27,8 @@ public class MainActivity extends AppCompatActivity {
     ListView lvwSongs;
     Button btnAdd;
     private List<String> songName = new ArrayList<String>();
-
+    private String mainDirName = "ComposerBlockNote";
+    private File baseFolder;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,9 +45,8 @@ public class MainActivity extends AppCompatActivity {
         lvwSongs.setAdapter(adapterlst);
 
         // open a folder
-        String mainDirName = "ComposerBlockNote";
         FileManager fm = new FileManager(this.getBaseContext(),this);
-        File baseFolder = fm.getMusicStorageDir(mainDirName);
+        baseFolder = fm.getMusicStorageDir(mainDirName);
         if (baseFolder == null){
             baseFolder = fm.createMusicStorageDir(mainDirName);
         }
@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, InitNoteActivity.class);
+                intent.putExtra("mainDir", baseFolder);
                 intent.putExtra("isNewSong", "yes");
                 startActivity(intent);
                 //songName.add("a");
@@ -77,5 +78,7 @@ public class MainActivity extends AppCompatActivity {
                 //Intent newSong = new Intent(this, );
             }
         });
+
     }
+
 }
