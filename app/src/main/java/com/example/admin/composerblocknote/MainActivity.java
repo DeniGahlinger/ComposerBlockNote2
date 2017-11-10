@@ -1,6 +1,10 @@
 package com.example.admin.composerblocknote;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -10,8 +14,13 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.os.Environment.getExternalStorageDirectory;
+import static java.lang.System.in;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,6 +43,15 @@ public class MainActivity extends AppCompatActivity {
         );
         lvwSongs.setAdapter(adapterlst);
 
+        // open a folder
+        String mainDirName = "want sum fuk?";
+        FileManager fm = new FileManager(this.getBaseContext(),this);
+        File baseFolder = fm.getMusicStorageDir(mainDirName);
+        if (baseFolder == null){
+            baseFolder = fm.createMusicStorageDir(mainDirName);
+        }
+        // yay
+
         lvwSongs.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
@@ -48,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, InitNoteActivity.class);
-                intent.putExtra("isNewSong", "no");
+                intent.putExtra("isNewSong", "yes");
                 startActivity(intent);
                 //songName.add("a");
                 //adapterlst.notifyDataSetChanged();
