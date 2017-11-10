@@ -65,7 +65,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:entries="@array/spinnerSign"/>/>
+                android:entries="@array/spinnerSign" />/>
 
             <TextView
                 android:id="@+id/textView"
@@ -82,7 +82,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:entries="@array/spinnerSign2"/>
+                android:entries="@array/spinnerSign2" />
         </LinearLayout>
 
         <Button

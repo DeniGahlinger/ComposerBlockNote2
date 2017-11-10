@@ -19,7 +19,7 @@ public class StudioManagerView extends View {
     private float mExampleDimension = 0; // TODO: use a default from R.dimen...
     private Drawable mExampleDrawable;
 
-    private TextPaint mTextPaint;
+    private Paint mTextPaint;
     private float mTextWidth;
     private float mTextHeight;
 
@@ -106,10 +106,12 @@ public class StudioManagerView extends View {
                     paddingLeft + contentWidth, paddingTop + contentHeight);
             mExampleDrawable.draw(canvas);
         }
+        //canvas.drawRect((getWidth() - paddingLeft - paddingRight), paddingTop, 10, 10, mTextPaint);
     }
 
     /**
      * Gets the example string attribute value.
+     *
      * @return The example string attribute value.
      */
     public String getExampleString() {
@@ -119,6 +121,7 @@ public class StudioManagerView extends View {
     /**
      * Sets the view's example string attribute value. In the example view, this string
      * is the text to draw.
+     *
      * @param exampleString The example string attribute value to use.
      */
     public void setExampleString(String exampleString) {
@@ -128,6 +131,7 @@ public class StudioManagerView extends View {
 
     /**
      * Gets the example color attribute value.
+     *
      * @return The example color attribute value.
      */
     public int getExampleColor() {
@@ -137,6 +141,7 @@ public class StudioManagerView extends View {
     /**
      * Sets the view's example color attribute value. In the example view, this color
      * is the font color.
+     *
      * @param exampleColor The example color attribute value to use.
      */
     public void setExampleColor(int exampleColor) {
@@ -146,6 +151,7 @@ public class StudioManagerView extends View {
 
     /**
      * Gets the example dimension attribute value.
+     *
      * @return The example dimension attribute value.
      */
     public float getExampleDimension() {
@@ -155,6 +161,7 @@ public class StudioManagerView extends View {
     /**
      * Sets the view's example dimension attribute value. In the example view, this dimension
      * is the font size.
+     *
      * @param exampleDimension The example dimension attribute value to use.
      */
     public void setExampleDimension(float exampleDimension) {
@@ -164,6 +171,7 @@ public class StudioManagerView extends View {
 
     /**
      * Gets the example drawable attribute value.
+     *
      * @return The example drawable attribute value.
      */
     public Drawable getExampleDrawable() {
@@ -173,6 +181,7 @@ public class StudioManagerView extends View {
     /**
      * Sets the view's example drawable attribute value. In the example view, this drawable is
      * drawn above the text.
+     *
      * @param exampleDrawable The example drawable attribute value to use.
      */
     public void setExampleDrawable(Drawable exampleDrawable) {

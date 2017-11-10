@@ -56,7 +56,7 @@ public class InitNoteActivity extends AppCompatActivity {
         findViewById(R.id.btnOK).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                
+
             }
         });
     }
