@@ -53,6 +53,12 @@ public class InitNoteActivity extends AppCompatActivity {
             findViewById(R.id.textView3).setVisibility(View.INVISIBLE);
             findViewById(R.id.tbxSongName).setVisibility(View.INVISIBLE);
         }
+        findViewById(R.id.btnOK).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                
+            }
+        });
     }
 
     private void initLists(){

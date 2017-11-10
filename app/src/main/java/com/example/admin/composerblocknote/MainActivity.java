@@ -44,11 +44,15 @@ public class MainActivity extends AppCompatActivity {
         lvwSongs.setAdapter(adapterlst);
 
         // open a folder
-        String mainDirName = "want sum fuk?";
+        String mainDirName = "ComposerBlockNote";
         FileManager fm = new FileManager(this.getBaseContext(),this);
         File baseFolder = fm.getMusicStorageDir(mainDirName);
         if (baseFolder == null){
             baseFolder = fm.createMusicStorageDir(mainDirName);
+        }
+        File[] files = baseFolder.listFiles();
+        for (File f : files){
+            songName.add(f.getName());
         }
         // yay
 
