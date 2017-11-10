@@ -6,9 +6,34 @@
     android:layout_height="match_parent"
     tools:context="com.example.admin.composerblocknote.StudioActivity">
 
-    <Button
-        android:id="@+id/btnRec"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Record" />
+        android:orientation="horizontal"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <Button
+            android:id="@+id/recordStop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Record"
+            android:textSize="20sp"
+            tools:layout_editor_absoluteX="8dp"
+            tools:layout_editor_absoluteY="0dp" />
+
+        <Button
+            android:id="@+id/play"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Play"
+            android:textSize="20sp"
+            tools:layout_editor_absoluteX="8dp"
+            tools:layout_editor_absoluteY="0dp" />
+
+    </LinearLayout>
 </android.support.constraint.ConstraintLayout>
