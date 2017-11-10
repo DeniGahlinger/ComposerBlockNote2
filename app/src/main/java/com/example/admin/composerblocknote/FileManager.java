@@ -41,7 +41,7 @@ public class FileManager {
         return false;
     }
 
-    public File getMusicStorageDir(String albumName) {
+    public File createMusicStorageDir(String albumName) {
         File file = null;
         try {
             file = new File(Environment.getExternalStoragePublicDirectory(
@@ -54,4 +54,18 @@ public class FileManager {
         }
         return file;
     }
+
+    public File getMusicStorageDir(String albumName) {
+        File file = null;
+        File[] files = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).listFiles();
+        for (File f : files){
+            System.out.println("DEBUG : " + f.getName());
+            if (f.getName().equals(albumName)){
+                System.out.println("DEBUG : " + "found file");
+                file = f;
+            }
+        }
+        return file;
+    }
+
 }

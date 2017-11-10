@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.os.Environment.getExternalStorageDirectory;
+import static java.lang.System.in;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -43,8 +44,12 @@ public class MainActivity extends AppCompatActivity {
         lvwSongs.setAdapter(adapterlst);
 
         // open a folder
+        String mainDirName = "want sum fuk?";
         FileManager fm = new FileManager(this.getBaseContext(),this);
-        File baseFolder = fm.getMusicStorageDir("want sum fuk?");
+        File baseFolder = fm.getMusicStorageDir(mainDirName);
+        if (baseFolder == null){
+            baseFolder = fm.createMusicStorageDir(mainDirName);
+        }
         // yay
 
         lvwSongs.setOnItemClickListener(new AdapterView.OnItemClickListener() {
