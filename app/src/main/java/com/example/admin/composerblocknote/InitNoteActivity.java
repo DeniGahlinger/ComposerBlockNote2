@@ -3,6 +3,7 @@ package com.example.admin.composerblocknote;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
@@ -37,8 +38,7 @@ public class InitNoteActivity extends AppCompatActivity {
 
         adp1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spTemp.setAdapter(adp1);
-        if(str == "yes"){
-
+        if(str.equals("yes")){
             spTemp.setSelection(100);
             spSign.setSelection(2);
             spSign2.setSelection(3);
