@@ -20,13 +20,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.os.Environment.getExternalStorageDirectory;
+import static java.lang.System.in;
 
 public class MainActivity extends AppCompatActivity {
 
     ListView lvwSongs;
     Button btnAdd;
     private List<String> songName = new ArrayList<String>();
-
+    private String mainDirName = "ComposerBlockNote";
+    private File baseFolder;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,7 +46,14 @@ public class MainActivity extends AppCompatActivity {
 
         // open a folder
         FileManager fm = new FileManager(this.getBaseContext(),this);
-        File baseFolder = fm.getMusicStorageDir("want sum fuk?");
+        baseFolder = fm.getMusicStorageDir(mainDirName);
+        if (baseFolder == null){
+            baseFolder = fm.createMusicStorageDir(mainDirName);
+        }
+        File[] files = baseFolder.listFiles();
+        for (File f : files){
+            songName.add(f.getName());
+        }
         // yay
 
         lvwSongs.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -61,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, InitNoteActivity.class);
+                intent.putExtra("mainDir", baseFolder);
                 intent.putExtra("isNewSong", "yes");
                 startActivity(intent);
                 //songName.add("a");
@@ -68,5 +78,7 @@ public class MainActivity extends AppCompatActivity {
                 //Intent newSong = new Intent(this, );
             }
         });
+
     }
+
 }

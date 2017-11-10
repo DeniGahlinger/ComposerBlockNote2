@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +25,19 @@ public class PartNavigatorActivity extends AppCompatActivity {
         setContentView(R.layout.activity_part_navigator);
         lvwParts = (ListView) findViewById(R.id.lvwPart);
         btnAdd = (Button) findViewById(R.id.btnAddPart);
+        String songDirName = "ComposerBlockNote";
+        FileManager fm = new FileManager(this.getBaseContext(),this);
+        File baseFolder = fm.getMusicStorageDir(songDirName);
+        File[] files = baseFolder.listFiles();
+        File[] parts = null;
+        for (File f : files){
+            if(f.getName().equals(getIntent().getStringExtra("songName"))){
+                parts = f.listFiles();
+            }
+        }
+        for (File f : parts){
+            partName.add(f.getName());
+        }
 
         final ArrayAdapter<String> adapterlst = new ArrayAdapter<String>(
                 PartNavigatorActivity.this,
@@ -44,7 +58,7 @@ public class PartNavigatorActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(PartNavigatorActivity.this, InitNoteActivity.class);
-                intent.putExtra("isNewSong", "yes");
+                intent.putExtra("isNewSong", "no");
                 startActivity(intent);
                 //partName.add("a");
                 //adapterlst.notifyDataSetChanged();
