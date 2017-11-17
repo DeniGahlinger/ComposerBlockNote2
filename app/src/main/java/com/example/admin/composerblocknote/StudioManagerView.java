@@ -5,10 +5,15 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.shapes.RectShape;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.View;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * TODO: document your custom view class.
@@ -19,9 +24,13 @@ public class StudioManagerView extends View {
     private float mExampleDimension = 0; // TODO: use a default from R.dimen...
     private Drawable mExampleDrawable;
 
+    List<RectShape> records = new ArrayList<RectShape>();
+
     private Paint mTextPaint;
     private float mTextWidth;
     private float mTextHeight;
+
+    private float cursorPosition;
 
     public StudioManagerView(Context context) {
         super(context);
@@ -63,21 +72,21 @@ public class StudioManagerView extends View {
         a.recycle();
 
         // Set up a default TextPaint object
-        mTextPaint = new TextPaint();
-        mTextPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
-        mTextPaint.setTextAlign(Paint.Align.LEFT);
+        mTextPaint = new Paint();
+        //mTextPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
+        //mTextPaint.setTextAlign(Paint.Align.LEFT);
 
         // Update TextPaint and text measurements from attributes
         invalidateTextPaintAndMeasurements();
     }
 
     private void invalidateTextPaintAndMeasurements() {
-        mTextPaint.setTextSize(mExampleDimension);
-        mTextPaint.setColor(mExampleColor);
-        mTextWidth = mTextPaint.measureText(mExampleString);
+        //mTextPaint.setTextSize(mExampleDimension);
+        //mTextPaint.setColor(mExampleColor);
+        //mTextWidth = mTextPaint.measureText(mExampleString);
 
-        Paint.FontMetrics fontMetrics = mTextPaint.getFontMetrics();
-        mTextHeight = fontMetrics.bottom;
+        //Paint.FontMetrics fontMetrics = mTextPaint.getFontMetrics();
+        //mTextHeight = fontMetrics.bottom;
     }
 
     @Override
@@ -95,18 +104,23 @@ public class StudioManagerView extends View {
         int contentHeight = getHeight() - paddingTop - paddingBottom;
 
         // Draw the text.
-        canvas.drawText(mExampleString,
+        /*canvas.drawText(mExampleString,
                 paddingLeft + (contentWidth - mTextWidth) / 2,
                 paddingTop + (contentHeight + mTextHeight) / 2,
-                mTextPaint);
+                mTextPaint);*/
 
         // Draw the example drawable on top of the text.
-        if (mExampleDrawable != null) {
+        /*if (mExampleDrawable != null) {
             mExampleDrawable.setBounds(paddingLeft, paddingTop,
                     paddingLeft + contentWidth, paddingTop + contentHeight);
             mExampleDrawable.draw(canvas);
-        }
-        //canvas.drawRect((getWidth() - paddingLeft - paddingRight), paddingTop, 10, 10, mTextPaint);
+        }*/
+
+        mTextPaint.setColor(Color.GREEN);
+        canvas.drawRect((getWidth() / 2) - 25, paddingTop, (getWidth() / 2) + 25, paddingTop + 50, mTextPaint);
+        canvas.drawRect((getWidth() / 2) - 5, 0, (getWidth() / 2) + 5, getHeight(), mTextPaint);
+        mTextPaint.setColor(Color.GREEN);
+
     }
 
     /**

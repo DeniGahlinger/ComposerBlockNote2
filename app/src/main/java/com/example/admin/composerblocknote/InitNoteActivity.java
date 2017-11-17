@@ -1,6 +1,7 @@
 package com.example.admin.composerblocknote;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -70,35 +71,37 @@ public class InitNoteActivity extends AppCompatActivity {
             //creating folder and writing metadata
             @Override
             public void onClick(View v) {
-                String dirName = getIntent().getStringExtra("mainDirName");
-                File baseFolder = (File)getIntent().getExtras().get("mainDir");
-                if (isNewSong){
-                    File songFolder = new File(baseFolder.getAbsolutePath() + "/" + textSongName.getText());
-                    File partFolder = new File(songFolder.getAbsolutePath() + "/" + textPartName.getText());
+            String dirName = getIntent().getStringExtra("mainDirName");
+            File baseFolder = (File)getIntent().getExtras().get("mainDir");
+            if (isNewSong){
+                File songFolder = new File(baseFolder.getAbsolutePath() + "/" + textSongName.getText());
+                File partFolder = new File(songFolder.getAbsolutePath() + "/" + textPartName.getText());
 
-                    if (songFolder.mkdir()){
-                        partFolder.mkdir();
-                        File metadata = new File(songFolder.getAbsolutePath() + "/.meta");
-                        //temp
-                        metadata.delete();
-                        String content = spTemp.getSelectedItem().toString() + ";" + spSign.getSelectedItem().toString() + ";" + spSign2.getSelectedItem().toString();
-                        System.out.println(content);
-                        try{
-                            metadata.createNewFile();
-                            metadata.setWritable(true);
-                            FileOutputStream fos = new FileOutputStream(metadata);
-                            fos.write(content.getBytes());
-                            fos.flush();
-                            fos.close();
-                        }
-                        catch(Exception e){
-                            e.printStackTrace();
-                        }
+                if (songFolder.mkdir()){
+                    partFolder.mkdir();
+                    File metadata = new File(songFolder.getAbsolutePath() + "/.meta");
+                    //temp
+                    metadata.delete();
+                    String content = spTemp.getSelectedItem().toString() + ";" + spSign.getSelectedItem().toString() + ";" + spSign2.getSelectedItem().toString();
+                    System.out.println(content);
+                    try{
+                        metadata.createNewFile();
+                        metadata.setWritable(true);
+                        FileOutputStream fos = new FileOutputStream(metadata);
+                        fos.write(content.getBytes());
+                        fos.flush();
+                        fos.close();
                     }
-                    else{
-                        Log.d("NRV", "Wasn't able to create folder .. ");
+                    catch(Exception e){
+                        e.printStackTrace();
                     }
                 }
+                else{
+                    Log.d("NRV", "Wasn't able to create folder .. ");
+                }
+            }
+            Intent intent = new Intent(InitNoteActivity.this, StudioActivity.class);
+            startActivity(intent);
             }
         });
     }
