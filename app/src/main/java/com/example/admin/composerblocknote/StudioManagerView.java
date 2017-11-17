@@ -11,6 +11,7 @@ import android.graphics.drawable.shapes.RectShape;
 import android.os.Bundle;
 import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.view.DragEvent;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -35,7 +36,7 @@ public class StudioManagerView extends View {
     private float mTextWidth;
     private float mTextHeight;
 
-    private float cursorPosition = 1000;
+    private float cursorPosition = 0;
 
     public StudioManagerView(Context context) {
         super(context);
@@ -85,7 +86,7 @@ public class StudioManagerView extends View {
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                cursorPosition += 100;
+                cursorPosition += 1;
                 v.invalidate();
                 switch (event.getAction() & MotionEvent.ACTION_MASK) {
                     case MotionEvent.ACTION_DOWN:
@@ -102,6 +103,15 @@ public class StudioManagerView extends View {
 
                         break;
                 }
+                return false;
+            }
+        });
+        this.setOnDragListener(new View.OnDragListener(){
+
+            @Override
+            public boolean onDrag(View v, DragEvent event) {
+                cursorPosition += 100;
+                v.invalidate();
                 return false;
             }
         });

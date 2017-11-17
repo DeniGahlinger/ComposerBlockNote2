@@ -5,18 +5,22 @@ import android.media.MediaRecorder;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.cuboid.cuboidcirclebutton.CuboidButton;
+
+import java.io.File;
 import java.io.IOException;
 
 /**
  * Credits to Sylvain Saurel for his tutorial on Android:: audio recorder.
  */
 public class StudioActivity extends AppCompatActivity {
-
-    private Button play, recordStop;
+    private static MediaPlayer mediaPlayer;
+    private CuboidButton recordStop, play;
     private MediaRecorder myAudioRecorder;
     private String outputFile;
     private boolean recording = false;
@@ -25,17 +29,22 @@ public class StudioActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_studio);
-        play = (Button) findViewById(R.id.play);
-        recordStop = (Button) findViewById(R.id.recordStop);
-        play.setEnabled(false);
+        play = (CuboidButton) findViewById(R.id.play);
+        recordStop = (CuboidButton) findViewById(R.id.recordStop);
 
-        outputFile = Environment.getExternalStorageDirectory().getAbsolutePath() + "/recording.3gp";
+        //play.setEnabled(false);
+
+        String currentPath = getIntent().getStringExtra("currentPath");
+
+
+        outputFile = currentPath+"/" +"1.3gp";
+        Log.d("ERROR", "outputFile: " + outputFile);
 
         recordStop.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
 
-                if(recording) { // Record.
+                if(!recording) { // Record.
                     try {
                         myAudioRecorder = new MediaRecorder();
                         myAudioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
@@ -50,19 +59,23 @@ public class StudioActivity extends AppCompatActivity {
                     } catch (IOException ioe){
 
                     }
-                    recordStop.setText("Stop");
-                    recording = false;
-                    play.setEnabled(false);
+                    //recordStop.setText("Stop");
+                    //recordStop.setText("@drawable/ic_stop_red");
+                    //recordStop.setCr_icon(1);
+                    recording = true;
+                    //play.setEnabled(false);
                     Toast.makeText(getApplicationContext(), "Recording started", Toast.LENGTH_LONG).show();
                 }
                 else // Stop.
                 {
+
                     myAudioRecorder.stop();
                     myAudioRecorder.release();
                     myAudioRecorder = null;
-                    recording = true;
-                    recordStop.setText("Record");
-                    play.setEnabled(true);
+                    recording = false;
+                    //recordStop.setText("Record");
+                    //recordStop.setText("@drawable/ic_micro_white");
+                    //play.setEnabled(true);
                     Toast.makeText(getApplicationContext(), "Audio Recorded succesfully", Toast.LENGTH_LONG).show();
                 }
             }
@@ -70,15 +83,14 @@ public class StudioActivity extends AppCompatActivity {
         play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MediaPlayer mediaPlayer = new MediaPlayer();
+                mediaPlayer = new MediaPlayer();
                 try{
                     mediaPlayer.setDataSource(outputFile);
                     mediaPlayer.prepare();
                     mediaPlayer.start();
                     Toast.makeText(getApplicationContext(), "Playing Audio", Toast.LENGTH_LONG).show();
-
                 }catch(Exception e){
-
+                    Toast.makeText(getApplicationContext(), "An error has occured!", Toast.LENGTH_LONG).show();
                 }
             }
         });

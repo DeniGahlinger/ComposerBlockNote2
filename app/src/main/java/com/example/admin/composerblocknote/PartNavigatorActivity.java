@@ -60,6 +60,8 @@ public class PartNavigatorActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(PartNavigatorActivity.this, InitNoteActivity.class);
                 intent.putExtra("isNewSong", "no");
+                File mainFolder = (File)intent.getExtras().get("InitMainDir");
+                intent.putExtra("mainDir", mainFolder);
                 startActivity(intent);
                 //partName.add("a");
                 //adapterlst.notifyDataSetChanged();

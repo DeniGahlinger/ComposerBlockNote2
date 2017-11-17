@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, PartNavigatorActivity.class);
                 intent.putExtra("songName", songName.get(position));
                 intent.putExtra("mainDir", mainDirName);
+                intent.putExtra("initMainDir", baseFolder);
                 startActivity(intent);
             }
         });
