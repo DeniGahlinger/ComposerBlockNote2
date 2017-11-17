@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(MainActivity.this, PartNavigatorActivity.class);
                 intent.putExtra("songName", songName.get(position));
+                intent.putExtra("mainDir", mainDirName);
                 startActivity(intent);
             }
         });

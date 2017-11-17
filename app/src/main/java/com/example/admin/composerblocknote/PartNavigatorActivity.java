@@ -25,7 +25,7 @@ public class PartNavigatorActivity extends AppCompatActivity {
         setContentView(R.layout.activity_part_navigator);
         lvwParts = (ListView) findViewById(R.id.lvwPart);
         btnAdd = (Button) findViewById(R.id.btnAddPart);
-        String songDirName = "ComposerBlockNote";
+        String songDirName = getIntent().getStringExtra("mainDir");
         FileManager fm = new FileManager(this.getBaseContext(),this);
         File baseFolder = fm.getMusicStorageDir(songDirName);
         File[] files = baseFolder.listFiles();
@@ -36,9 +36,10 @@ public class PartNavigatorActivity extends AppCompatActivity {
             }
         }
         for (File f : parts){
-            partName.add(f.getName());
+            if(!f.getName().equals(".meta")){
+                partName.add(f.getName());
+            }
         }
-
         final ArrayAdapter<String> adapterlst = new ArrayAdapter<String>(
                 PartNavigatorActivity.this,
                 android.R.layout.simple_list_item_1,

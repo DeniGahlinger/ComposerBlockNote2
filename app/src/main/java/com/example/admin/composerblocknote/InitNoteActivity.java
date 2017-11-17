@@ -71,7 +71,7 @@ public class InitNoteActivity extends AppCompatActivity {
             //creating folder and writing metadata
             @Override
             public void onClick(View v) {
-            String dirName = getIntent().getStringExtra("mainDirName");
+            //String dirName = getIntent().getStringExtra("mainDirName");
             File baseFolder = (File)getIntent().getExtras().get("mainDir");
             if (isNewSong){
                 File songFolder = new File(baseFolder.getAbsolutePath() + "/" + textSongName.getText());

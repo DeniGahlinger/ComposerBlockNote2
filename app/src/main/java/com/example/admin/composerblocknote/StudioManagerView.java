@@ -8,8 +8,10 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.shapes.RectShape;
+import android.os.Bundle;
 import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -26,11 +28,14 @@ public class StudioManagerView extends View {
 
     List<RectShape> records = new ArrayList<RectShape>();
 
+    public float mouseX;
+    public float mouseY;
+
     private Paint mTextPaint;
     private float mTextWidth;
     private float mTextHeight;
 
-    private float cursorPosition;
+    private float cursorPosition = 1000;
 
     public StudioManagerView(Context context) {
         super(context);
@@ -76,6 +81,30 @@ public class StudioManagerView extends View {
         //mTextPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
         //mTextPaint.setTextAlign(Paint.Align.LEFT);
 
+        this.setOnTouchListener(new View.OnTouchListener(){
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                cursorPosition += 100;
+                v.invalidate();
+                switch (event.getAction() & MotionEvent.ACTION_MASK) {
+                    case MotionEvent.ACTION_DOWN:
+                        mouseX = event.getX();
+                        mouseY = event.getY();
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        break;
+                    case MotionEvent.ACTION_POINTER_DOWN:
+                        break;
+                    case MotionEvent.ACTION_POINTER_UP:
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+
+                        break;
+                }
+                return false;
+            }
+        });
         // Update TextPaint and text measurements from attributes
         invalidateTextPaintAndMeasurements();
     }
@@ -115,14 +144,47 @@ public class StudioManagerView extends View {
                     paddingLeft + contentWidth, paddingTop + contentHeight);
             mExampleDrawable.draw(canvas);
         }*/
-
-        mTextPaint.setColor(Color.GREEN);
+        printTempo(canvas, 4, 4, 200, 20000);
+        printAudios();
+        mTextPaint.setColor(Color.argb(200,30,255,0));
         canvas.drawRect((getWidth() / 2) - 25, paddingTop, (getWidth() / 2) + 25, paddingTop + 50, mTextPaint);
         canvas.drawRect((getWidth() / 2) - 5, 0, (getWidth() / 2) + 5, getHeight(), mTextPaint);
         mTextPaint.setColor(Color.GREEN);
 
-    }
 
+    }
+    private void printAudios(){
+
+    }
+    private float getStepBlackNote(int zoom, int tempo, int signNote){
+        return (zoom/(float)tempo) / (float)signNote;
+    }
+    private void printTempo(Canvas canvas, int signNb, int signNote, int tempo, int zoom){
+        float step = getStepBlackNote(zoom, tempo, signNote);
+        float tpos = 0;
+        int counter = 0;
+        mTextPaint.setColor(Color.rgb(200,200,200));
+        float dec = step * (-cursorPosition * tempo/1000f)/60f + getWidth() / 2;
+        for(tpos = dec; tpos<getWidth(); tpos += step){
+            canvas.drawRect(tpos - 1, 0, tpos + 1, getHeight(), mTextPaint);
+            if(counter % signNb == 0){
+                mTextPaint.setColor(Color.rgb(130,130,130));
+                canvas.drawRect(tpos - 1, 0, tpos + 1, getHeight(), mTextPaint);
+                mTextPaint.setColor(Color.rgb(200,200,200));
+            }
+            counter += 1;
+        }
+        counter = 0;
+        for(tpos = dec; tpos>0; tpos -= step){
+            canvas.drawRect(tpos - 1, 0, tpos + 1, getHeight(), mTextPaint);
+            if(counter % signNb == 0){
+                mTextPaint.setColor(Color.rgb(130,130,130));
+                canvas.drawRect(tpos - 1, 0, tpos + 1, getHeight(), mTextPaint);
+                mTextPaint.setColor(Color.rgb(200,200,200));
+            }
+            counter += 1;
+        }
+    }
     /**
      * Gets the example string attribute value.
      *
