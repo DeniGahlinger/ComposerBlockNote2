@@ -9,6 +9,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.cuboid.cuboidcirclebutton.CuboidButton;
+
 import java.io.IOException;
 
 /**
@@ -16,7 +18,7 @@ import java.io.IOException;
  */
 public class StudioActivity extends AppCompatActivity {
 
-    private Button play, recordStop;
+    private CuboidButton recordStop, play;
     private MediaRecorder myAudioRecorder;
     private String outputFile;
     private boolean recording = false;
@@ -25,8 +27,8 @@ public class StudioActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        play = (Button) findViewById(R.id.play);
-        recordStop = (Button) findViewById(R.id.recordStop);
+        play = (CuboidButton) findViewById(R.id.play);
+        recordStop = (CuboidButton) findViewById(R.id.recordStop);
         play.setEnabled(false);
 
         outputFile = Environment.getExternalStorageDirectory().getAbsolutePath() + "/recording.3gp";
@@ -50,7 +52,8 @@ public class StudioActivity extends AppCompatActivity {
                     } catch (IOException ioe){
 
                     }
-                    recordStop.setText("Stop");
+                    //recordStop.setText("Stop");
+                    recordStop.setText("@drawable/ic_stop_red");
                     recording = false;
                     play.setEnabled(false);
                     Toast.makeText(getApplicationContext(), "Recording started", Toast.LENGTH_LONG).show();
@@ -61,7 +64,8 @@ public class StudioActivity extends AppCompatActivity {
                     myAudioRecorder.release();
                     myAudioRecorder = null;
                     recording = true;
-                    recordStop.setText("Record");
+                    //recordStop.setText("Record");
+                    recordStop.setText("@drawable/ic_micro_white");
                     play.setEnabled(true);
                     Toast.makeText(getApplicationContext(), "Audio Recorded succesfully", Toast.LENGTH_LONG).show();
                 }
