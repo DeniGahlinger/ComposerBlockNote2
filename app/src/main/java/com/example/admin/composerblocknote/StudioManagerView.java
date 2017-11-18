@@ -9,6 +9,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.shapes.RectShape;
 import android.os.Bundle;
+import android.support.v4.view.MotionEventCompat;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.DragEvent;
@@ -29,14 +30,16 @@ public class StudioManagerView extends View {
 
     List<RectShape> records = new ArrayList<RectShape>();
 
-    public float mouseX;
-    public float mouseY;
+    public float mouseX = -1;
+    public float mouseY = -1;
 
     private Paint mTextPaint;
     private float mTextWidth;
     private float mTextHeight;
 
     private float cursorPosition = 0;
+    private int tempo = 120;
+    private int zoom = 6000;
 
     public StudioManagerView(Context context) {
         super(context);
@@ -86,33 +89,31 @@ public class StudioManagerView extends View {
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                cursorPosition += 1;
-                v.invalidate();
-                switch (event.getAction() & MotionEvent.ACTION_MASK) {
+
+                switch (MotionEventCompat.getActionMasked(event)) {
                     case MotionEvent.ACTION_DOWN:
-                        mouseX = event.getX();
-                        mouseY = event.getY();
                         break;
                     case MotionEvent.ACTION_UP:
+                        mouseX = -1;
+                        mouseY = -1;
                         break;
                     case MotionEvent.ACTION_POINTER_DOWN:
                         break;
                     case MotionEvent.ACTION_POINTER_UP:
+                        mouseX = -1;
+                        mouseY = -1;
                         break;
                     case MotionEvent.ACTION_MOVE:
-
+                        //cursorPosition += (mouseX - event.getX())*zoom / 1800f;
+                        if(mouseX != -1){
+                            cursorPosition += (mouseX - event.getX()) * 60000 / zoom;
+                            v.invalidate();
+                        }
+                        mouseX = event.getX();
+                        mouseY = event.getY();
                         break;
                 }
-                return false;
-            }
-        });
-        this.setOnDragListener(new View.OnDragListener(){
-
-            @Override
-            public boolean onDrag(View v, DragEvent event) {
-                cursorPosition += 100;
-                v.invalidate();
-                return false;
+                return true;
             }
         });
         // Update TextPaint and text measurements from attributes
@@ -154,7 +155,7 @@ public class StudioManagerView extends View {
                     paddingLeft + contentWidth, paddingTop + contentHeight);
             mExampleDrawable.draw(canvas);
         }*/
-        printTempo(canvas, 4, 4, 200, 20000);
+        printTempo(canvas, 4, 4, tempo, zoom);
         printAudios();
         mTextPaint.setColor(Color.argb(200,30,255,0));
         canvas.drawRect((getWidth() / 2) - 25, paddingTop, (getWidth() / 2) + 25, paddingTop + 50, mTextPaint);
@@ -167,7 +168,7 @@ public class StudioManagerView extends View {
 
     }
     private float getStepBlackNote(int zoom, int tempo, int signNote){
-        return (zoom/(float)tempo) / (float)signNote;
+        return (zoom/(float)tempo)/* / (float)signNote*/;
     }
     private void printTempo(Canvas canvas, int signNb, int signNote, int tempo, int zoom){
         float step = getStepBlackNote(zoom, tempo, signNote);

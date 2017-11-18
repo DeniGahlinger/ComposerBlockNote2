@@ -31,7 +31,7 @@ public class StudioActivity extends AppCompatActivity {
         setContentView(R.layout.activity_studio);
         play = (CuboidButton) findViewById(R.id.play);
         recordStop = (CuboidButton) findViewById(R.id.recordStop);
-
+        StudioManagerView studioView = (StudioManagerView) findViewById(R.id.myStudioManager);
         //play.setEnabled(false);
 
         String currentPath = getIntent().getStringExtra("currentPath");
