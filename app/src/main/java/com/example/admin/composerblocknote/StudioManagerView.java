@@ -32,6 +32,8 @@ public class StudioManagerView extends View {
 
     List<RectShape> records = new ArrayList<RectShape>();
 
+    private boolean isRecoding = false;
+
     public float mouseX = -1;
     public float mouseY = -1;
 
@@ -44,6 +46,7 @@ public class StudioManagerView extends View {
     private int zoom = 6000;
     private boolean isPlaying = false;
     private Timer timer = new Timer();
+    public ArrayList<AudioNoteData> audioData = new ArrayList<AudioNoteData>();
 
     public StudioManagerView(Context context) {
         super(context);
@@ -160,16 +163,41 @@ public class StudioManagerView extends View {
             mExampleDrawable.draw(canvas);
         }*/
         printTempo(canvas, 4, 4, tempo, zoom);
-        printAudios();
+        printAudios(canvas);
         mTextPaint.setColor(Color.argb(200,30,255,0));
         canvas.drawRect((getWidth() / 2) - 25, paddingTop, (getWidth() / 2) + 25, paddingTop + 50, mTextPaint);
         canvas.drawRect((getWidth() / 2) - 5, 0, (getWidth() / 2) + 5, getHeight(), mTextPaint);
         mTextPaint.setColor(Color.GREEN);
 
 
-    }
-    private void printAudios(){
 
+    }
+    private void printAudios(Canvas canvas){
+        mTextPaint.setColor(Color.rgb(10,70,255));
+        for(int i = 0; i<audioData.size(); i++){
+            canvas.drawRect((getWidth() / 2) + audioData.get(i).getDelay()* zoom / 60000f - (cursorPosition * zoom / 60000f), getPaddingTop() + 55 + i * 85, (getWidth() / 2) + audioData.get(i).getDelay() * zoom / 60000f + audioData.get(i).getLength() * zoom / 60000f - (cursorPosition * zoom / 60000f), getPaddingTop() + 55 + 80 + i * 85, mTextPaint);
+        }
+        if(isRecoding){
+            mTextPaint.setColor(Color.rgb(230,30,30));
+            canvas.drawRect((getWidth() / 2) + audioData.get(audioData.size()-1).getDelay()* zoom / 60000f - (cursorPosition * zoom / 60000f), getPaddingTop() + 55 + (audioData.size()-1) * 85, (getWidth() / 2), getPaddingTop() + 55 + 80 + (audioData.size()-1) * 85, mTextPaint);
+        } else {
+            if(audioData.size()>0){
+                canvas.drawRect((getWidth() / 2) + audioData.get(audioData.size()-1).getDelay()* zoom / 60000f - (cursorPosition * zoom / 60000f), getPaddingTop() + 55 + (audioData.size()-1) * 85, (getWidth() / 2) + audioData.get(audioData.size()-1).getDelay() * zoom / 60000f + audioData.get(audioData.size()-1).getLength() * zoom / 60000f - (cursorPosition * zoom / 60000f), getPaddingTop() + 55 + 80 + (audioData.size()-1) * 85, mTextPaint);
+
+            }
+        }
+        mTextPaint.setColor(Color.rgb(10,70,255));
+    }
+    public void addNewAudio(){
+        isRecoding = true;
+        audioData.add(new AudioNoteData((int)cursorPosition));
+    }
+    public void finishAddingNewAudio(){
+        isRecoding = false;
+        audioData.get(audioData.size()-1).setLength((int)cursorPosition - audioData.get(audioData.size()-1).getDelay());
+    }
+    public int getNextAudioID(){
+        return audioData.size();
     }
     public void play(){
         isPlaying = true;

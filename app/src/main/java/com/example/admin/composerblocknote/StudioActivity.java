@@ -26,6 +26,7 @@ public class StudioActivity extends AppCompatActivity {
     private boolean recording = false;
     private boolean playing = false;
     private StudioManagerView studioView;
+    private String currentPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +37,7 @@ public class StudioActivity extends AppCompatActivity {
         studioView = (StudioManagerView) findViewById(R.id.myStudioManager);
         //play.setEnabled(false);
 
-        String currentPath = getIntent().getStringExtra("currentPath");
+        currentPath = getIntent().getStringExtra("currentPath");
 
 
         outputFile = currentPath+"/" +"1.3gp";
@@ -52,10 +53,11 @@ public class StudioActivity extends AppCompatActivity {
                         myAudioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
                         myAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
                         myAudioRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
-                        myAudioRecorder.setOutputFile(outputFile);
+                        myAudioRecorder.setOutputFile(currentPath + "/" + studioView.getNextAudioID() + ".3gp");
 
                         myAudioRecorder.prepare();
                         myAudioRecorder.start();
+                        studioView.addNewAudio();
                     } catch(IllegalStateException ise){
 
                     } catch (IOException ioe){
@@ -71,7 +73,7 @@ public class StudioActivity extends AppCompatActivity {
                 }
                 else // Stop.
                 {
-
+                    studioView.finishAddingNewAudio();
                     myAudioRecorder.stop();
                     myAudioRecorder.release();
                     myAudioRecorder = null;
