@@ -69,7 +69,7 @@ public class StudioActivity extends AppCompatActivity {
                     recording = true;
                     //play.setEnabled(false);
                     Toast.makeText(getApplicationContext(), "Recording started", Toast.LENGTH_LONG).show();
-                    studioView.play();
+                    studioView.play(currentPath,true);
                 }
                 else // Stop.
                 {
@@ -91,20 +91,21 @@ public class StudioActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(!playing){
                     playing = true;
-                    mediaPlayer = new MediaPlayer();
+                    /*mediaPlayer = new MediaPlayer();
                     try{
                         mediaPlayer.setDataSource(outputFile);
                         mediaPlayer.prepare();
+                        mediaPlayer.seekTo(-2000);
                         mediaPlayer.start();
                         Toast.makeText(getApplicationContext(), "Playing Audio", Toast.LENGTH_LONG).show();
                     }catch(Exception e){
                         Toast.makeText(getApplicationContext(), "An error has occured!", Toast.LENGTH_LONG).show();
-                    }
-                    studioView.play();
+                    }*/
+                    studioView.play(currentPath,false);
                 }
                 else {
                     playing = false;
-                    mediaPlayer.stop();
+                    //mediaPlayer.stop();
                     studioView.stop();
                 }
             }

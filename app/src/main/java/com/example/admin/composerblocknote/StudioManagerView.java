@@ -199,7 +199,17 @@ public class StudioManagerView extends View {
     public int getNextAudioID(){
         return audioData.size();
     }
-    public void play(){
+    public void play(String path, boolean isRec){
+        int maxValueOfAudio;
+        if(isRec){
+            maxValueOfAudio = audioData.size() - 1;
+        }
+        else {
+            maxValueOfAudio = audioData.size();
+        }
+        for(int i = 0; i<maxValueOfAudio; i++){
+            audioData.get(i).play((int)cursorPosition,path,i);
+        }
         isPlaying = true;
         timer.cancel();
         timer.purge();
@@ -214,6 +224,9 @@ public class StudioManagerView extends View {
         }, 20, 20);
     }
     public void stop(){
+        for(int i = 0; i<audioData.size(); i++){
+            audioData.get(i).stop();
+        }
         isPlaying = false;
         timer.cancel();
         timer.purge();
