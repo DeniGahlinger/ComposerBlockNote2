@@ -96,12 +96,51 @@ public class InitNoteActivity extends AppCompatActivity {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+                    File metadataP = new File(partFolder.getAbsolutePath() + "/.meta");
+                    //temp
+                    metadataP.delete();
+                    try {
+                        metadataP.createNewFile();
+                        metadataP.setWritable(true);
+                        FileOutputStream fos = new FileOutputStream(metadataP);
+                        fos.write(content.getBytes());
+                        fos.flush();
+                        fos.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 } else {
                     Log.d("NRV", "Wasn't able to create folder .. ");
                 }
                 Intent intent = new Intent(InitNoteActivity.this, StudioActivity.class);
                 intent.putExtra("currentPath", partFolder.getAbsolutePath());
                 startActivity(intent);
+            }
+            else{
+                songFolder = (File)getIntent().getExtras().get("songFolder");
+                partFolder = new File(songFolder.getAbsolutePath() + "/" + textPartName.getText());
+                if(partFolder.exists()){
+
+                } else {
+                    partFolder.mkdir();
+                    File metadataP = new File(partFolder.getAbsolutePath() + "/.meta");
+                    //temp
+                    metadataP.delete();
+                    String str = "";
+                    try {
+                        metadataP.createNewFile();
+                        metadataP.setWritable(true);
+                        FileOutputStream fos = new FileOutputStream(metadataP);
+                        fos.write(str.getBytes());
+                        fos.flush();
+                        fos.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    Intent intent = new Intent(InitNoteActivity.this, StudioActivity.class);
+                    intent.putExtra("currentPath", partFolder.getAbsolutePath());
+                    startActivity(intent);
+                }
             }
             }
         });

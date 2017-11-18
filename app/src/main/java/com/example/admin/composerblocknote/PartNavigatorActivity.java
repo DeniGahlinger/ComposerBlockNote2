@@ -3,6 +3,7 @@ package com.example.admin.composerblocknote;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -30,9 +31,11 @@ public class PartNavigatorActivity extends AppCompatActivity {
         File baseFolder = fm.getMusicStorageDir(songDirName);
         File[] files = baseFolder.listFiles();
         File[] parts = null;
+        File songFolder = null;
         for (File f : files){
             if(f.getName().equals(getIntent().getStringExtra("songName"))){
                 parts = f.listFiles();
+                songFolder = f;
             }
         }
         for (File f : parts){
@@ -40,21 +43,26 @@ public class PartNavigatorActivity extends AppCompatActivity {
                 partName.add(f.getName());
             }
         }
+        File partFolder = null;
         final ArrayAdapter<String> adapterlst = new ArrayAdapter<String>(
                 PartNavigatorActivity.this,
                 android.R.layout.simple_list_item_1,
                 partName
         );
         lvwParts.setAdapter(adapterlst);
+        final File[] finalParts = parts;
         lvwParts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(PartNavigatorActivity.this, InitNoteActivity.class);
+                Intent intent = new Intent(PartNavigatorActivity.this, StudioActivity.class);
                 intent.putExtra("songName", partName.get(position));
+                Log.d("Part", "ID of part : " + position);
+                intent.putExtra("currentPath", finalParts[position].getAbsolutePath());
                 startActivity(intent);
             }
         });
+        final File finalSongFolder = songFolder;
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -62,6 +70,7 @@ public class PartNavigatorActivity extends AppCompatActivity {
                 intent.putExtra("isNewSong", "no");
                 File mainFolder = (File)intent.getExtras().get("InitMainDir");
                 intent.putExtra("mainDir", mainFolder);
+                intent.putExtra("songFolder", finalSongFolder);
                 startActivity(intent);
                 //partName.add("a");
                 //adapterlst.notifyDataSetChanged();

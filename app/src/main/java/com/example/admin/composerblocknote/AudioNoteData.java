@@ -25,20 +25,19 @@ public class AudioNoteData {
     public int getDelay(){
         return delay;
     }
+    public void setDelay(int newDelay){
+        delay = newDelay;
+    }
     public  int getLength(){
         return length;
     }
     public void play(int currentTime, String path, int id){
-        Log.d("Playy", "play function YES for : " + id);
-        Log.d("Playy", "currentTime : " + currentTime + ", And Delay : " + delay + ", And Length : " + length);
         if(currentTime < delay){
-            Log.d("Playy", "currentTime < delay for : " + id);
             try{
                 playAudioWithDelay(delay - currentTime, path, id);
             }catch(Exception e){
             }
         } else if(currentTime < delay + length){
-            Log.d("Playy", "currentTime < delay + length for : " + id);
             mediaPlayer = new MediaPlayer();
             try{
                 mediaPlayer.setDataSource(path + "/" + id + ".3gp");
@@ -70,7 +69,6 @@ public class AudioNoteData {
             if(mediaPlayer.isPlaying()){
                 mediaPlayer.stop();
             }
-            mediaPlayer.release();
         }
     }
 }

@@ -37,6 +37,8 @@ public class StudioManagerView extends View {
     public float mouseX = -1;
     public float mouseY = -1;
 
+    private int trackHeight = 80;
+
     private Paint mTextPaint;
     private float mTextWidth;
     private float mTextHeight;
@@ -112,8 +114,24 @@ public class StudioManagerView extends View {
                         break;
                     case MotionEvent.ACTION_MOVE:
                         //cursorPosition += (mouseX - event.getX())*zoom / 1800f;
+
                         if(mouseX != -1 && isPlaying == false){
-                            cursorPosition += (mouseX - event.getX()) * 60000 / zoom;
+                            boolean scroll = true;
+                            for(int i = 0; i<audioData.size(); i++){
+                                if(event.getX()>(getWidth() / 2) + audioData.get(i).getDelay()* zoom / 60000f - (cursorPosition * zoom / 60000f)){
+                                    if(event.getX()<(getWidth() / 2) + audioData.get(i).getDelay() * zoom / 60000f + audioData.get(i).getLength() * zoom / 60000f - (cursorPosition * zoom / 60000f)){
+                                        if(event.getY()>getPaddingTop() + 55 + i * trackHeight){
+                                            if(event.getY()<getPaddingTop() + 55 + (trackHeight-5) + i * trackHeight){
+                                                scroll=false;
+                                                audioData.get(i).setDelay(audioData.get(i).getDelay() - (int)((mouseX - event.getX()) * 60000 / zoom));
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            if(scroll == true){
+                                cursorPosition += (mouseX - event.getX()) * 60000 / zoom;
+                            }
                             v.invalidate();
                         }
                         mouseX = event.getX();
@@ -163,6 +181,9 @@ public class StudioManagerView extends View {
             mExampleDrawable.draw(canvas);
         }*/
         printTempo(canvas, 4, 4, tempo, zoom);
+        mTextPaint.setColor(Color.rgb(20,20,90));
+        canvas.drawRect((getWidth() / 2) - (cursorPosition * zoom / 60000f) - 2, 0, (getWidth() / 2) - (cursorPosition * zoom / 60000f) + 2, getHeight(), mTextPaint);
+        mTextPaint.setColor(Color.rgb(200,200,200));
         printAudios(canvas);
         mTextPaint.setColor(Color.argb(200,30,255,0));
         canvas.drawRect((getWidth() / 2) - 25, paddingTop, (getWidth() / 2) + 25, paddingTop + 50, mTextPaint);
@@ -175,14 +196,14 @@ public class StudioManagerView extends View {
     private void printAudios(Canvas canvas){
         mTextPaint.setColor(Color.rgb(10,70,255));
         for(int i = 0; i<audioData.size(); i++){
-            canvas.drawRect((getWidth() / 2) + audioData.get(i).getDelay()* zoom / 60000f - (cursorPosition * zoom / 60000f), getPaddingTop() + 55 + i * 85, (getWidth() / 2) + audioData.get(i).getDelay() * zoom / 60000f + audioData.get(i).getLength() * zoom / 60000f - (cursorPosition * zoom / 60000f), getPaddingTop() + 55 + 80 + i * 85, mTextPaint);
+            canvas.drawRect((getWidth() / 2) + audioData.get(i).getDelay()* zoom / 60000f - (cursorPosition * zoom / 60000f), getPaddingTop() + 55 + i * trackHeight, (getWidth() / 2) + audioData.get(i).getDelay() * zoom / 60000f + audioData.get(i).getLength() * zoom / 60000f - (cursorPosition * zoom / 60000f), getPaddingTop() + 55 + (trackHeight-5) + i * trackHeight, mTextPaint);
         }
         if(isRecoding){
             mTextPaint.setColor(Color.rgb(230,30,30));
-            canvas.drawRect((getWidth() / 2) + audioData.get(audioData.size()-1).getDelay()* zoom / 60000f - (cursorPosition * zoom / 60000f), getPaddingTop() + 55 + (audioData.size()-1) * 85, (getWidth() / 2), getPaddingTop() + 55 + 80 + (audioData.size()-1) * 85, mTextPaint);
+            canvas.drawRect((getWidth() / 2) + audioData.get(audioData.size()-1).getDelay()* zoom / 60000f - (cursorPosition * zoom / 60000f), getPaddingTop() + 55 + (audioData.size()-1) * trackHeight, (getWidth() / 2), getPaddingTop() + 55 + (trackHeight - 5) + (audioData.size()-1) * trackHeight, mTextPaint);
         } else {
             if(audioData.size()>0){
-                canvas.drawRect((getWidth() / 2) + audioData.get(audioData.size()-1).getDelay()* zoom / 60000f - (cursorPosition * zoom / 60000f), getPaddingTop() + 55 + (audioData.size()-1) * 85, (getWidth() / 2) + audioData.get(audioData.size()-1).getDelay() * zoom / 60000f + audioData.get(audioData.size()-1).getLength() * zoom / 60000f - (cursorPosition * zoom / 60000f), getPaddingTop() + 55 + 80 + (audioData.size()-1) * 85, mTextPaint);
+                canvas.drawRect((getWidth() / 2) + audioData.get(audioData.size()-1).getDelay()* zoom / 60000f - (cursorPosition * zoom / 60000f), getPaddingTop() + 55 + (audioData.size()-1) * trackHeight, (getWidth() / 2) + audioData.get(audioData.size()-1).getDelay() * zoom / 60000f + audioData.get(audioData.size()-1).getLength() * zoom / 60000f - (cursorPosition * zoom / 60000f), getPaddingTop() + 55 + (trackHeight-5) + (audioData.size()-1) * trackHeight, mTextPaint);
 
             }
         }
