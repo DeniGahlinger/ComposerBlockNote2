@@ -114,6 +114,7 @@ public class InitNoteActivity extends AppCompatActivity {
                 }
                 Intent intent = new Intent(InitNoteActivity.this, StudioActivity.class);
                 intent.putExtra("currentPath", partFolder.getAbsolutePath());
+                intent.putExtra("newPart", true);
                 startActivity(intent);
             }
             else{
@@ -139,6 +140,7 @@ public class InitNoteActivity extends AppCompatActivity {
                     }
                     Intent intent = new Intent(InitNoteActivity.this, StudioActivity.class);
                     intent.putExtra("currentPath", partFolder.getAbsolutePath());
+                    intent.putExtra("newPart", true);
                     startActivity(intent);
                 }
             }

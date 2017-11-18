@@ -36,12 +36,14 @@ public class StudioActivity extends AppCompatActivity {
         recordStop = (CuboidButton) findViewById(R.id.recordStop);
         studioView = (StudioManagerView) findViewById(R.id.myStudioManager);
         //play.setEnabled(false);
-
         currentPath = getIntent().getStringExtra("currentPath");
-
+        File currentFile = new File(currentPath);
+        studioView.openSongData(currentFile.getParent());
+        if((boolean)getIntent().getExtras().get("")){
+            studioView.openExistingPartData(currentFile.getAbsolutePath());
+        }
 
         outputFile = currentPath+"/" +"1.3gp";
-        Log.d("ERROR", "outputFile: " + outputFile);
 
         recordStop.setOnClickListener(new View.OnClickListener(){
             @Override

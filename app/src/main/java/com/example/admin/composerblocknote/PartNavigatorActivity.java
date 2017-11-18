@@ -57,8 +57,8 @@ public class PartNavigatorActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(PartNavigatorActivity.this, StudioActivity.class);
                 intent.putExtra("songName", partName.get(position));
-                Log.d("Part", "ID of part : " + position);
                 intent.putExtra("currentPath", finalParts[position].getAbsolutePath());
+                intent.putExtra("newPart", false);
                 startActivity(intent);
             }
         });

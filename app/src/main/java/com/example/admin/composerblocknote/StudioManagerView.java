@@ -16,6 +16,8 @@ import android.view.DragEvent;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -45,6 +47,8 @@ public class StudioManagerView extends View {
 
     private float cursorPosition = 0;
     private int tempo = 120;
+    private int signatureNb = 4;
+    private int signatureNote = 4;
     private int zoom = 6000;
     private boolean isPlaying = false;
     private Timer timer = new Timer();
@@ -144,6 +148,21 @@ public class StudioManagerView extends View {
         // Update TextPaint and text measurements from attributes
         invalidateTextPaintAndMeasurements();
     }
+    public void openSongData(String path) {
+        try {
+            FileInputStream fis = new FileInputStream(path + "/.meta");
+            //TODO : Lire le fichier pour mettre le contenu dans signatureNb, signatureNote et Tempo (selon l'ordre fait dans InitNoteActivity.java ligne 87
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+    public void openExistingPartData(String path) {
+        try {
+            FileInputStream fis = new FileInputStream(path + "/.meta");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 
     private void invalidateTextPaintAndMeasurements() {
         //mTextPaint.setTextSize(mExampleDimension);
@@ -180,7 +199,7 @@ public class StudioManagerView extends View {
                     paddingLeft + contentWidth, paddingTop + contentHeight);
             mExampleDrawable.draw(canvas);
         }*/
-        printTempo(canvas, 4, 4, tempo, zoom);
+        printTempo(canvas, signatureNb, signatureNote, tempo, zoom);
         mTextPaint.setColor(Color.rgb(20,20,90));
         canvas.drawRect((getWidth() / 2) - (cursorPosition * zoom / 60000f) - 2, 0, (getWidth() / 2) - (cursorPosition * zoom / 60000f) + 2, getHeight(), mTextPaint);
         mTextPaint.setColor(Color.rgb(200,200,200));
@@ -212,10 +231,15 @@ public class StudioManagerView extends View {
     public void addNewAudio(){
         isRecoding = true;
         audioData.add(new AudioNoteData((int)cursorPosition));
+        if(getHeight() < trackHeight * audioData.size() + 55 + getPaddingTop() + getPaddingBottom()){
+            trackHeight = (getHeight() - 55 - getPaddingTop() - getPaddingBottom()) / audioData.size();
+        }
     }
     public void finishAddingNewAudio(){
+        if(isRecoding){
+            audioData.get(audioData.size()-1).setLength((int)cursorPosition - audioData.get(audioData.size()-1).getDelay());
+        }
         isRecoding = false;
-        audioData.get(audioData.size()-1).setLength((int)cursorPosition - audioData.get(audioData.size()-1).getDelay());
     }
     public int getNextAudioID(){
         return audioData.size();
