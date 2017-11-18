@@ -24,6 +24,8 @@ public class StudioActivity extends AppCompatActivity {
     private MediaRecorder myAudioRecorder;
     private String outputFile;
     private boolean recording = false;
+    private boolean playing = false;
+    private StudioManagerView studioView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +33,7 @@ public class StudioActivity extends AppCompatActivity {
         setContentView(R.layout.activity_studio);
         play = (CuboidButton) findViewById(R.id.play);
         recordStop = (CuboidButton) findViewById(R.id.recordStop);
-        StudioManagerView studioView = (StudioManagerView) findViewById(R.id.myStudioManager);
+        studioView = (StudioManagerView) findViewById(R.id.myStudioManager);
         //play.setEnabled(false);
 
         String currentPath = getIntent().getStringExtra("currentPath");
@@ -65,6 +67,7 @@ public class StudioActivity extends AppCompatActivity {
                     recording = true;
                     //play.setEnabled(false);
                     Toast.makeText(getApplicationContext(), "Recording started", Toast.LENGTH_LONG).show();
+                    studioView.play();
                 }
                 else // Stop.
                 {
@@ -77,20 +80,30 @@ public class StudioActivity extends AppCompatActivity {
                     //recordStop.setText("@drawable/ic_micro_white");
                     //play.setEnabled(true);
                     Toast.makeText(getApplicationContext(), "Audio Recorded succesfully", Toast.LENGTH_LONG).show();
+                    studioView.stop();
                 }
             }
         });
         play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mediaPlayer = new MediaPlayer();
-                try{
-                    mediaPlayer.setDataSource(outputFile);
-                    mediaPlayer.prepare();
-                    mediaPlayer.start();
-                    Toast.makeText(getApplicationContext(), "Playing Audio", Toast.LENGTH_LONG).show();
-                }catch(Exception e){
-                    Toast.makeText(getApplicationContext(), "An error has occured!", Toast.LENGTH_LONG).show();
+                if(!playing){
+                    playing = true;
+                    mediaPlayer = new MediaPlayer();
+                    try{
+                        mediaPlayer.setDataSource(outputFile);
+                        mediaPlayer.prepare();
+                        mediaPlayer.start();
+                        Toast.makeText(getApplicationContext(), "Playing Audio", Toast.LENGTH_LONG).show();
+                    }catch(Exception e){
+                        Toast.makeText(getApplicationContext(), "An error has occured!", Toast.LENGTH_LONG).show();
+                    }
+                    studioView.play();
+                }
+                else {
+                    playing = false;
+                    mediaPlayer.stop();
+                    studioView.stop();
                 }
             }
         });

@@ -18,6 +18,8 @@ import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * TODO: document your custom view class.
@@ -40,6 +42,8 @@ public class StudioManagerView extends View {
     private float cursorPosition = 0;
     private int tempo = 120;
     private int zoom = 6000;
+    private boolean isPlaying = false;
+    private Timer timer = new Timer();
 
     public StudioManagerView(Context context) {
         super(context);
@@ -105,7 +109,7 @@ public class StudioManagerView extends View {
                         break;
                     case MotionEvent.ACTION_MOVE:
                         //cursorPosition += (mouseX - event.getX())*zoom / 1800f;
-                        if(mouseX != -1){
+                        if(mouseX != -1 && isPlaying == false){
                             cursorPosition += (mouseX - event.getX()) * 60000 / zoom;
                             v.invalidate();
                         }
@@ -166,6 +170,25 @@ public class StudioManagerView extends View {
     }
     private void printAudios(){
 
+    }
+    public void play(){
+        isPlaying = true;
+        timer.cancel();
+        timer.purge();
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                cursorPosition += 20;
+                //invalidate();
+                postInvalidate();
+            }
+        }, 20, 20);
+    }
+    public void stop(){
+        isPlaying = false;
+        timer.cancel();
+        timer.purge();
     }
     private float getStepBlackNote(int zoom, int tempo, int signNote){
         return (zoom/(float)tempo)/* / (float)signNote*/;
