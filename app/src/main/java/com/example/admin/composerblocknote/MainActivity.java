@@ -81,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
                         songName.remove(pos);
                         System.out.println("NRV - deleting " + f.getName());
                         ((BaseAdapter)lvwSongs.getAdapter()).notifyDataSetChanged();
+                        break;
                     }
                 }
                 return true;
