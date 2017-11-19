@@ -40,15 +40,14 @@
                 android:layout_height="120dp"
                 android:layout_marginLeft="50dp"
                 android:layout_weight="1"
+                android:text="Normal"
                 android:textColor="@android:color/white"
                 android:textSize="14sp"
-                android:text="Normal"
-                app:cub_border_radius="5dp"
                 app:cub_border_color="@color/colorPrimaryDark"
+                app:cub_border_radius="5dp"
                 app:cub_color="@color/colorPrimary"
                 app:cub_hover_color="@color/colorPrimaryDark"
-                app:cub_icon="@drawable/ic_micro_white"
-                />
+                app:cub_icon="@drawable/ic_micro_white" />
 
             <com.cuboid.cuboidcirclebutton.CuboidButton
                 android:id="@+id/play"

@@ -24,9 +24,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".InitNoteActivity" />
-        <activity android:name=".PartNavigatorActivity" />
-        <activity android:name=".StudioActivity"></activity>
+        <activity android:name=".InitNoteActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".PartNavigatorActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".StudioActivity" android:screenOrientation="portrait"></activity>
+
     </application>
 
 </manifest>

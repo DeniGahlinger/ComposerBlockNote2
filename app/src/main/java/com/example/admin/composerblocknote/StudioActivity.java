@@ -1,6 +1,7 @@
 package com.example.admin.composerblocknote;
 
 import android.Manifest;
+import android.graphics.PorterDuff;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Environment;
@@ -37,6 +38,7 @@ public class StudioActivity extends AppCompatActivity {
         setContentView(R.layout.activity_studio);
         play = (CuboidButton) findViewById(R.id.play);
         recordStop = (CuboidButton) findViewById(R.id.recordStop);
+
         studioView = (StudioManagerView) findViewById(R.id.myStudioManager);
         //play.setEnabled(false);
         currentPath = getIntent().getStringExtra("currentPath");
@@ -80,7 +82,8 @@ public class StudioActivity extends AppCompatActivity {
                         //recordStop.setText("@drawable/ic_stop_red");
                         //recordStop.setCr_icon(1);
                         recording = true;
-                        //play.setEnabled(false);
+                        play.setEnabled(false);
+
                         Toast.makeText(getApplicationContext(), "Recording started", Toast.LENGTH_LONG).show();
                         studioView.play(currentPath,true);
                     }
@@ -93,7 +96,7 @@ public class StudioActivity extends AppCompatActivity {
                         recording = false;
                         //recordStop.setText("Record");
                         //recordStop.setText("@drawable/ic_micro_white");
-                        //play.setEnabled(true);
+                        play.setEnabled(true);
                         Toast.makeText(getApplicationContext(), "Audio Recorded succesfully", Toast.LENGTH_LONG).show();
                         studioView.stop();
                     }
