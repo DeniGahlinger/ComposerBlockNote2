@@ -1,8 +1,11 @@
 package com.example.admin.composerblocknote;
 
+import android.Manifest;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -48,44 +51,54 @@ public class StudioActivity extends AppCompatActivity {
         recordStop.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
+                int permissionCheck = ContextCompat.checkSelfPermission(StudioActivity.this,
+                        Manifest.permission.RECORD_AUDIO);
+                if(permissionCheck != 0){
 
-                if(!recording) { // Record.
-                    try {
-                        myAudioRecorder = new MediaRecorder();
-                        myAudioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-                        myAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-                        myAudioRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
-                        myAudioRecorder.setOutputFile(currentPath + "/" + studioView.getNextAudioID() + ".3gp");
+                    ActivityCompat.requestPermissions(StudioActivity.this,
+                            new String[]{Manifest.permission.RECORD_AUDIO},0);
 
-                        myAudioRecorder.prepare();
-                        myAudioRecorder.start();
-                        studioView.addNewAudio();
-                    } catch(IllegalStateException ise){
+                }
+                else{
+                    if(!recording) { // Record.
+                        try {
+                            myAudioRecorder = new MediaRecorder();
+                            myAudioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+                            myAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+                            myAudioRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
+                            myAudioRecorder.setOutputFile(currentPath + "/" + studioView.getNextAudioID() + ".3gp");
 
-                    } catch (IOException ioe){
-
+                            myAudioRecorder.prepare();
+                            myAudioRecorder.start();
+                            studioView.addNewAudio();
+                        } catch(IllegalStateException ise){
+                            ise.printStackTrace();
+                        } catch (IOException ioe){
+                            ioe.printStackTrace();
+                        }
+                        //recordStop.setText("Stop");
+                        //recordStop.setText("@drawable/ic_stop_red");
+                        //recordStop.setCr_icon(1);
+                        recording = true;
+                        //play.setEnabled(false);
+                        Toast.makeText(getApplicationContext(), "Recording started", Toast.LENGTH_LONG).show();
+                        studioView.play(currentPath,true);
                     }
-                    //recordStop.setText("Stop");
-                    //recordStop.setText("@drawable/ic_stop_red");
-                    //recordStop.setCr_icon(1);
-                    recording = true;
-                    //play.setEnabled(false);
-                    Toast.makeText(getApplicationContext(), "Recording started", Toast.LENGTH_LONG).show();
-                    studioView.play(currentPath,true);
+                    else // Stop.
+                    {
+                        studioView.finishAddingNewAudio();
+                        myAudioRecorder.stop();
+                        myAudioRecorder.release();
+                        myAudioRecorder = null;
+                        recording = false;
+                        //recordStop.setText("Record");
+                        //recordStop.setText("@drawable/ic_micro_white");
+                        //play.setEnabled(true);
+                        Toast.makeText(getApplicationContext(), "Audio Recorded succesfully", Toast.LENGTH_LONG).show();
+                        studioView.stop();
+                    }
                 }
-                else // Stop.
-                {
-                    studioView.finishAddingNewAudio();
-                    myAudioRecorder.stop();
-                    myAudioRecorder.release();
-                    myAudioRecorder = null;
-                    recording = false;
-                    //recordStop.setText("Record");
-                    //recordStop.setText("@drawable/ic_micro_white");
-                    //play.setEnabled(true);
-                    Toast.makeText(getApplicationContext(), "Audio Recorded succesfully", Toast.LENGTH_LONG).show();
-                    studioView.stop();
-                }
+
             }
         });
         play.setOnClickListener(new View.OnClickListener() {
@@ -113,4 +126,6 @@ public class StudioActivity extends AppCompatActivity {
             }
         });
     }
+
+
 }

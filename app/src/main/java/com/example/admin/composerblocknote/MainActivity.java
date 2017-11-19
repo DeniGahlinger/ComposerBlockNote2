@@ -5,12 +5,14 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
@@ -54,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
         for (File f : files){
             songName.add(f.getName());
         }
-        // yay
 
         lvwSongs.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -67,6 +68,25 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+
+        lvwSongs.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
+                                           int pos, long id) {
+                System.out.println("NRV - songname(pos) = " +  songName.get(pos));
+                for (File f : baseFolder.listFiles()){
+                    if (f.getName().equals(songName.get(pos))){
+                        delR(f);
+                        songName.remove(pos);
+                        System.out.println("NRV - deleting " + f.getName());
+                        ((BaseAdapter)lvwSongs.getAdapter()).notifyDataSetChanged();
+                    }
+                }
+                return true;
+            }
+        });
+
 
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,4 +103,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    //recursively delete a directory and its childrens
+    void delR(File f) {
+        if (f.isDirectory())
+            for (File child : f.listFiles())
+                delR(child);
+        f.delete();
+    }
 }
