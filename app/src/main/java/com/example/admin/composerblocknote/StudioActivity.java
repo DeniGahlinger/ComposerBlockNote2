@@ -39,7 +39,7 @@ public class StudioActivity extends AppCompatActivity {
         currentPath = getIntent().getStringExtra("currentPath");
         File currentFile = new File(currentPath);
         studioView.openSongData(currentFile.getParent());
-        if((boolean)getIntent().getExtras().get("")){
+        if((boolean)getIntent().getExtras().get("newPart")){
             studioView.openExistingPartData(currentFile.getAbsolutePath());
         }
 
