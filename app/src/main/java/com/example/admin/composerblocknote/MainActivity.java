@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private List<String> songName = new ArrayList<String>();
     private String mainDirName = "ComposerBlockNote";
     private File baseFolder;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
                 songName
         );
         lvwSongs.setAdapter(adapterlst);
+
 
         // open a folder
         FileManager fm = new FileManager(this.getBaseContext(),this);
@@ -69,17 +71,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         lvwSongs.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
                                            int pos, long id) {
-                System.out.println("NRV - songname(pos) = " +  songName.get(pos));
+                //TODO : add a contextual menu which asks for confirmation when deleting a project
                 for (File f : baseFolder.listFiles()){
                     if (f.getName().equals(songName.get(pos))){
                         delR(f);
                         songName.remove(pos);
-                        System.out.println("NRV - deleting " + f.getName());
                         ((BaseAdapter)lvwSongs.getAdapter()).notifyDataSetChanged();
                         break;
                     }
@@ -88,27 +88,34 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, InitNoteActivity.class);
                 intent.putExtra("mainDir", baseFolder);
                 intent.putExtra("isNewSong", "yes");
+                //todo : change startActivity() to startActivityWithResult() to keep track of the back button returns,
                 startActivity(intent);
+
+                //startActivityForResult(intent, 0);
                 //songName.add("a");
                 //adapterlst.notifyDataSetChanged();
                 //Intent newSong = new Intent(this, );
             }
         });
-
+        ((BaseAdapter)lvwSongs.getAdapter()).notifyDataSetChanged();
     }
 
-    //recursively delete a directory and its childrens
+
+    // Recursively delete a directory and its childrens
     void delR(File f) {
         if (f.isDirectory())
             for (File child : f.listFiles())
                 delR(child);
         f.delete();
+    }
+
+    public BaseAdapter getSongsAdapter(){
+        return (BaseAdapter)lvwSongs.getAdapter();
     }
 }

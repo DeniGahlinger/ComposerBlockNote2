@@ -10,8 +10,10 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +72,7 @@ public class InitNoteActivity extends AppCompatActivity {
             //creating folder and writing metadata
             @Override
             public void onClick(View v) {
-            String dirName = getIntent().getStringExtra("mainDir");
+            //String dirName = getIntent().getStringExtra("mainDir");
 
             File baseFolder = (File)getIntent().getExtras().get("mainDir");
             File songFolder = null;
@@ -81,30 +83,20 @@ public class InitNoteActivity extends AppCompatActivity {
 
                 if (songFolder.mkdir()) {
                     partFolder.mkdir();
-                    File metadata = new File(songFolder.getAbsolutePath() + "/.meta");
-                    //temp
-                    metadata.delete();
+                    //Creating metadata
+                   // File metadata = new File(songFolder.getAbsolutePath() + "/.meta");
                     String content = spTemp.getSelectedItem().toString() + ";" + spSign.getSelectedItem().toString() + ";" + spSign2.getSelectedItem().toString();
-                    System.out.println(content);
+                    System.out.println("NRV - " + content);
                     try {
-                        metadata.createNewFile();
-                        metadata.setWritable(true);
-                        FileOutputStream fos = new FileOutputStream(metadata);
-                        fos.write(content.getBytes());
-                        fos.flush();
-                        fos.close();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    File metadataP = new File(partFolder.getAbsolutePath() + "/.meta");
-                    //temp
-                    metadataP.delete();
-                    try {
-                        metadataP.createNewFile();
-                        metadataP.setWritable(true);
-                        FileOutputStream fos = new FileOutputStream(metadataP);
-                        fos.write(content.getBytes());
-                        fos.flush();
+                        //metadata.createNewFile();
+                       // metadata.setWritable(true);
+
+                        FileOutputStream fos = new FileOutputStream(songFolder.getAbsoluteFile() + "/.meta");
+
+                        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
+                        bw.write(content);
+                        bw.flush();
+                        bw.close();
                         fos.close();
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -112,6 +104,7 @@ public class InitNoteActivity extends AppCompatActivity {
                 } else {
                     Log.d("NRV", "Wasn't able to create folder .. ");
                 }
+
                 Intent intent = new Intent(InitNoteActivity.this, StudioActivity.class);
                 intent.putExtra("currentPath", partFolder.getAbsolutePath());
                 intent.putExtra("newPart", true);
