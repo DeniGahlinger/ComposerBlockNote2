@@ -12,6 +12,7 @@ import java.io.IOException;
  */
 
 public class AudioNoteData {
+    private boolean isPlaying;
     private int delay;
     private int length;
     private MediaPlayer mediaPlayer;
@@ -32,6 +33,7 @@ public class AudioNoteData {
         return length;
     }
     public void play(int currentTime, String path, int id){
+        isPlaying = true;
         if(currentTime < delay){
             try{
                 playAudioWithDelay(delay - currentTime, path, id);
@@ -53,18 +55,22 @@ public class AudioNoteData {
         handler.postDelayed(new Runnable(){
             @Override
             public void run() {
-                mediaPlayer = new MediaPlayer();
-                try {
-                    mediaPlayer.setDataSource(path + "/" + id + ".3gp");
-                    mediaPlayer.prepare();
-                    mediaPlayer.start();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if(isPlaying)
+                {
+                    mediaPlayer = new MediaPlayer();
+                    try {
+                        mediaPlayer.setDataSource(path + "/" + id + ".3gp");
+                        mediaPlayer.prepare();
+                        mediaPlayer.start();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }, myDelay);
     }
     public void stop(){
+        isPlaying = false;
         if(mediaPlayer != null){
             if(mediaPlayer.isPlaying()){
                 mediaPlayer.stop();
