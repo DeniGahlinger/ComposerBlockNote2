@@ -143,6 +143,7 @@ public class StudioManagerView extends View {
                         break;
                 }
                 return true;
+
             }
         });
         // Update TextPaint and text measurements from attributes
