@@ -231,6 +231,7 @@ public class StudioManagerView extends View {
         canvas.drawRect((getWidth() / 2) - 5, 0, (getWidth() / 2) + 5, getHeight(), mTextPaint);
         mTextPaint.setColor(Color.GREEN);
 
+        printMetronome(canvas);
 
 
     }
@@ -326,6 +327,7 @@ public class StudioManagerView extends View {
             }
             counter += 1;
         }
+
     }
 
     /**
@@ -333,6 +335,15 @@ public class StudioManagerView extends View {
      *
      * @return The example string attribute value.
      */
+    private void printMetronome(Canvas canvas){
+        float moduloOnTemps = (Math.abs(cursorPosition) % (int)(60000.0/tempo));
+        if(moduloOnTemps < 100 && isRecoding){
+            int alpha = (int)(Math.cos(moduloOnTemps / 20 / Math.PI) * 255);
+            mTextPaint.setColor(Color.argb(alpha,10,70,255));
+            canvas.drawRect(0,0,getWidth(),getHeight(),mTextPaint);
+            mTextPaint.setColor(Color.argb(alpha,250,50,10));
+        }
+    }
     public String getExampleString() {
         return mExampleString;
     }
