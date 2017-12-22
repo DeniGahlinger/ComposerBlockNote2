@@ -5,14 +5,10 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.shapes.RectShape;
-import android.os.Bundle;
 import android.support.v4.view.MotionEventCompat;
-import android.text.TextPaint;
 import android.util.AttributeSet;
-import android.view.DragEvent;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -25,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import org.billthefarmer.mididriver.MidiDriver;
 
 /**
  * TODO: document your custom view class.
@@ -56,6 +53,8 @@ public class StudioManagerView extends View {
     private boolean isPlaying = false;
     private Timer timer = new Timer();
     public ArrayList<AudioNoteData> audioData = new ArrayList<AudioNoteData>();
+
+    MidiDriver midiDriver = new MidiDriver();
 
     public StudioManagerView(Context context) {
         super(context);
@@ -296,6 +295,12 @@ public class StudioManagerView extends View {
         isPlaying = false;
         timer.cancel();
         timer.purge();
+
+        byte[] event = new byte[3];
+        event[0] = (byte) (0x90 | 0x00);
+        event[1] = (byte) 0x3C;
+        event[2] = (byte) 0x7F;
+        midiDriver.write(event);
     }
     private float getStepBlackNote(int zoom, int tempo, int signNote){
         return (zoom/(float)tempo)/* / (float)signNote*/;
