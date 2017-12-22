@@ -32,6 +32,12 @@ public class StudioActivity extends AppCompatActivity {
     private StudioManagerView studioView;
     private String currentPath;
 
+
+    public void onBackPressed(){
+        System.out.println("finished");
+        finish();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

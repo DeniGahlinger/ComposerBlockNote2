@@ -16,8 +16,11 @@ import android.view.DragEvent;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -151,14 +154,30 @@ public class StudioManagerView extends View {
     }
     public void openSongData(String path) {
         try {
+            /*
+             * Reading the meta informations from the .meta file
+             */
             FileInputStream fis = new FileInputStream(path + "/.meta");
-            //TODO : Lire le fichier pour mettre le contenu dans signatureNb, signatureNote et Tempo (selon l'ordre fait dans InitNoteActivity.java ligne 87
+            BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while((line = br.readLine()) != null){
+                String infos[] = line.split(";");
+                this.tempo = Integer.parseInt(infos[0]);
+                this.signatureNb = Integer.parseInt(infos[1]);
+                this.signatureNote = Integer.parseInt(infos[2]);
+            }
+            System.out.println("Song info : tempo = " + this.tempo + " , sign = " + this.signatureNb + "/" + this.signatureNote);
         } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e){
             e.printStackTrace();
         }
     }
     public void openExistingPartData(String path) {
         try {
+            //Je sais pas si c'est nécessaire mais je sais plus ce qu'on avait dit .. En totu cas là ça fait une exception surtout
+
             FileInputStream fis = new FileInputStream(path + "/.meta");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
