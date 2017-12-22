@@ -6,17 +6,22 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 
 /**
  * Created by admin on 18.11.2017.
  */
 
-public class AudioNoteData {
+
+public class AudioNoteData implements Serializable{
+    private static final long serialVersionUID = 1L;
     private boolean isPlaying;
     private int delay;
     private int length;
-    private MediaPlayer mediaPlayer;
-    private Handler handler = new Handler();
+    private transient MediaPlayer mediaPlayer;
+    private transient Handler handler;
     public AudioNoteData(int delay){
         this.delay = delay;
     }
@@ -52,6 +57,7 @@ public class AudioNoteData {
 
     }
     public void playAudioWithDelay(int myDelay, final String path, final int id){
+        handler = new Handler();
         handler.postDelayed(new Runnable(){
             @Override
             public void run() {
@@ -77,4 +83,5 @@ public class AudioNoteData {
             }
         }
     }
+
 }

@@ -15,8 +15,10 @@ import android.view.View;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -332,6 +334,7 @@ public class StudioManagerView extends View {
         }
 
     }
+
     /**
      * Gets the example string attribute value.
      *
@@ -350,12 +353,22 @@ public class StudioManagerView extends View {
         return mExampleString;
     }
 
+    public ArrayList<AudioNoteData> getAudioData(){
+        return audioData;
+    }
+    public void setAudioData(ArrayList<AudioNoteData> input){
+        this.audioData = input;
+        postInvalidate();
+    }
+
     /**
      * Sets the view's example string attribute value. In the example view, this string
      * is the text to draw.
      *
      * @param exampleString The example string attribute value to use.
      */
+
+
     public void setExampleString(String exampleString) {
         mExampleString = exampleString;
         invalidateTextPaintAndMeasurements();

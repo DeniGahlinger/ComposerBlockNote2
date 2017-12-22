@@ -17,7 +17,13 @@ import android.widget.Toast;
 import com.cuboid.cuboidcirclebutton.CuboidButton;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 
 /**
  * Credits to Sylvain Saurel for his tutorial on Android:: audio recorder.
@@ -53,7 +59,7 @@ public class StudioActivity extends AppCompatActivity {
         if((boolean)getIntent().getExtras().get("newPart")){
             studioView.openExistingPartData(currentFile.getAbsolutePath());
         }
-
+        readAudioDataNodes(currentPath + "/.notes");
         outputFile = currentPath+"/" +"1.3gp";
 
         recordStop.setOnClickListener(new View.OnClickListener(){
@@ -105,6 +111,15 @@ public class StudioActivity extends AppCompatActivity {
                         play.setEnabled(true);
                         Toast.makeText(getApplicationContext(), "Audio Recorded succesfully", Toast.LENGTH_LONG).show();
                         studioView.stop();
+                        try{
+                            writeAudioDataNodes(currentPath + "/.notes");
+                        }
+                        catch(FileNotFoundException fnfe){
+                            fnfe.printStackTrace();
+                        }
+                        catch (IOException ioe){
+                            ioe.printStackTrace();
+                        }
                     }
                 }
 
@@ -135,6 +150,40 @@ public class StudioActivity extends AppCompatActivity {
             }
         });
     }
+    private void writeAudioDataNodes(String path) throws FileNotFoundException, IOException{
+        try{
+            FileOutputStream fos =  new FileOutputStream(path);
+            ObjectOutputStream out = new ObjectOutputStream(fos);
+            out.writeObject(studioView.getAudioData());
+            out.close();
+            fos.close();
+        }
+        catch(FileNotFoundException fnfe){
+            throw(fnfe);
+        }
+        catch(IOException ioe){
+            throw(ioe);
+        }
+    }
 
-
+    private void readAudioDataNodes(String path){
+        ArrayList<AudioNoteData> ary = null;
+        try {
+            FileInputStream fin = new FileInputStream(path);
+            ObjectInputStream in = new ObjectInputStream(fin);
+            ary = (ArrayList<AudioNoteData>) in.readObject();
+            in.close();
+            fin.close();
+        } catch (IOException i) {
+            i.printStackTrace();
+            return;
+        } catch (ClassNotFoundException c) {
+            System.out.println("Class not found");
+            c.printStackTrace();
+            return;
+        }
+        if (ary != null){
+            studioView.setAudioData(ary);
+        }
+    }
 }
