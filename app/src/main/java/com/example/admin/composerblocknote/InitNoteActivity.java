@@ -20,7 +20,8 @@ import java.util.List;
 
 import static android.R.attr.data;
 
-public class InitNoteActivity extends AppCompatActivity {
+public class InitNoteActivity extends AppCompatActivity
+{
     final List<String> tempoList = new ArrayList<String>();
     Spinner spTemp;
     Spinner spSign;
@@ -31,7 +32,8 @@ public class InitNoteActivity extends AppCompatActivity {
     boolean isNewSong;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_init_note);
 
@@ -54,12 +56,13 @@ public class InitNoteActivity extends AppCompatActivity {
         adp1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spTemp.setAdapter(adp1);
 
-        if(str.equals("yes")){
+        if (str.equals("yes"))
+        {
             spTemp.setSelection(100);
             spSign.setSelection(2);
             spSign2.setSelection(3);
-        }
-        else {
+        } else
+        {
             spTemp.setVisibility(View.INVISIBLE);
             spSign.setVisibility(View.INVISIBLE);
             spSign2.setVisibility(View.INVISIBLE);
@@ -68,81 +71,87 @@ public class InitNoteActivity extends AppCompatActivity {
             findViewById(R.id.textView3).setVisibility(View.INVISIBLE);
             findViewById(R.id.tbxSongName).setVisibility(View.INVISIBLE);
         }
-        findViewById(R.id.btnOK).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btnOK).setOnClickListener(new View.OnClickListener()
+        {
             //creating folder and writing metadata
             @Override
-            public void onClick(View v) {
-            //String dirName = getIntent().getStringExtra("mainDir");
+            public void onClick(View v)
+            {
 
-            File baseFolder = (File)getIntent().getExtras().get("mainDir");
-            File songFolder = null;
-            File partFolder = null;
-            if (isNewSong) {
-                songFolder = new File(baseFolder.getAbsolutePath() + "/" + textSongName.getText());
-                partFolder = new File(songFolder.getAbsolutePath() + "/" + textPartName.getText());
+                File baseFolder = (File) getIntent().getExtras().get("mainDir");
+                File songFolder = null;
+                File partFolder = null;
+                if (isNewSong)
+                {
+                    songFolder = new File(baseFolder.getAbsolutePath() + "/" + textSongName.getText());
+                    partFolder = new File(songFolder.getAbsolutePath() + "/" + textPartName.getText());
 
-                if (songFolder.mkdir()) {
-                    partFolder.mkdir();
-                    //Creating metadata
-                   // File metadata = new File(songFolder.getAbsolutePath() + "/.meta");
-                    String content = spTemp.getSelectedItem().toString() + ";" + spSign.getSelectedItem().toString() + ";" + spSign2.getSelectedItem().toString();
-                    System.out.println("NRV - " + content);
-                    try {
-                        //metadata.createNewFile();
-                       // metadata.setWritable(true);
+                    if (songFolder.mkdir())
+                    {
+                        partFolder.mkdir();
+                        String content = spTemp.getSelectedItem().toString() + ";" + spSign.getSelectedItem().toString() + ";" + spSign2.getSelectedItem().toString();
+                        System.out.println("NRV - " + content);
+                        try
+                        {
+                            FileOutputStream fos = new FileOutputStream(songFolder.getAbsoluteFile() + "/.meta");
 
-                        FileOutputStream fos = new FileOutputStream(songFolder.getAbsoluteFile() + "/.meta");
-
-                        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
-                        bw.write(content);
-                        bw.flush();
-                        bw.close();
-                        fos.close();
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
+                            bw.write(content);
+                            bw.flush();
+                            bw.close();
+                            fos.close();
+                        } catch (Exception e)
+                        {
+                            e.printStackTrace();
+                        }
+                    } else
+                    {
+                        Log.d("NRV", "Wasn't able to create folder .. ");
                     }
-                } else {
-                    Log.d("NRV", "Wasn't able to create folder .. ");
-                }
 
-                Intent intent = new Intent(InitNoteActivity.this, StudioActivity.class);
-                intent.putExtra("currentPath", partFolder.getAbsolutePath());
-                intent.putExtra("newPart", true);
-                startActivity(intent);
-            }
-            else{
-                songFolder = (File)getIntent().getExtras().get("songFolder");
-                partFolder = new File(songFolder.getAbsolutePath() + "/" + textPartName.getText());
-                if(partFolder.exists()){
-
-                } else {
-                    partFolder.mkdir();
-                    File metadataP = new File(partFolder.getAbsolutePath() + "/.meta");
-                    //temp
-                    metadataP.delete();
-                    String str = "";
-                    try {
-                        metadataP.createNewFile();
-                        metadataP.setWritable(true);
-                        FileOutputStream fos = new FileOutputStream(metadataP);
-                        fos.write(str.getBytes());
-                        fos.flush();
-                        fos.close();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
                     Intent intent = new Intent(InitNoteActivity.this, StudioActivity.class);
                     intent.putExtra("currentPath", partFolder.getAbsolutePath());
                     intent.putExtra("newPart", true);
                     startActivity(intent);
+                } else
+                {
+                    songFolder = (File) getIntent().getExtras().get("songFolder");
+                    partFolder = new File(songFolder.getAbsolutePath() + "/" + textPartName.getText());
+                    if (partFolder.exists())
+                    {
+
+                    } else
+                    {
+                        partFolder.mkdir();
+                        File metadataP = new File(partFolder.getAbsolutePath() + "/.meta");
+                        metadataP.delete();
+                        String str = "";
+                        try
+                        {
+                            metadataP.createNewFile();
+                            metadataP.setWritable(true);
+                            FileOutputStream fos = new FileOutputStream(metadataP);
+                            fos.write(str.getBytes());
+                            fos.flush();
+                            fos.close();
+                        } catch (Exception e)
+                        {
+                            e.printStackTrace();
+                        }
+                        Intent intent = new Intent(InitNoteActivity.this, StudioActivity.class);
+                        intent.putExtra("currentPath", partFolder.getAbsolutePath());
+                        intent.putExtra("newPart", true);
+                        startActivity(intent);
+                    }
                 }
-            }
             }
         });
     }
 
-    private void initLists(){
-        for(int i = 20; i<=240; i++){
+    private void initLists()
+    {
+        for (int i = 20; i <= 240; i++)
+        {
             tempoList.add(i + "");
         }
     }
