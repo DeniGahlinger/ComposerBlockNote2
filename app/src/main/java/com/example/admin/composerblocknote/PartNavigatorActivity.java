@@ -27,19 +27,19 @@ public class PartNavigatorActivity extends AppCompatActivity {
         lvwParts = (ListView) findViewById(R.id.lvwPart);
         btnAdd = (Button) findViewById(R.id.btnAddPart);
         String songDirName = getIntent().getStringExtra("mainDir");
-        FileManager fm = new FileManager(this.getBaseContext(),this);
+        FileManager fm = new FileManager(this.getBaseContext(), this);
         File baseFolder = fm.getMusicStorageDir(songDirName);
         File[] files = baseFolder.listFiles();
         File[] parts = null;
         File songFolder = null;
-        for (File f : files){
-            if(f.getName().equals(getIntent().getStringExtra("songName"))){
+        for (File f : files) {
+            if (f.getName().equals(getIntent().getStringExtra("songName"))) {
                 parts = f.listFiles();
                 songFolder = f;
             }
         }
-        for (File f : parts){
-            if(!f.getName().equals(".meta")){
+        for (File f : parts) {
+            if (!f.getName().equals(".meta")) {
                 partName.add(f.getName());
             }
         }
@@ -49,6 +49,7 @@ public class PartNavigatorActivity extends AppCompatActivity {
                 android.R.layout.simple_list_item_1,
                 partName
         );
+
         lvwParts.setAdapter(adapterlst);
         final File[] finalParts = parts;
         lvwParts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -62,19 +63,18 @@ public class PartNavigatorActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
         final File finalSongFolder = songFolder;
+
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(PartNavigatorActivity.this, InitNoteActivity.class);
                 intent.putExtra("isNewSong", "no");
-                File mainFolder = (File)intent.getExtras().get("InitMainDir");
+                File mainFolder = (File) intent.getExtras().get("InitMainDir");
                 intent.putExtra("mainDir", mainFolder);
                 intent.putExtra("songFolder", finalSongFolder);
                 startActivity(intent);
-                //partName.add("a");
-                //adapterlst.notifyDataSetChanged();
-                //Intent newSong = new Intent(this, );
             }
         });
     }
