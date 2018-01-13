@@ -51,11 +51,13 @@ public class StudioActivity extends AppCompatActivity {
         studioView = (StudioManagerView) findViewById(R.id.myStudioManager);
         currentPath = getIntent().getStringExtra("currentPath");
         File currentFile = new File(currentPath);
+        studioView.setPath(currentPath);
         studioView.openSongData(currentFile.getParent());
         if((boolean)getIntent().getExtras().get("newPart")){
             studioView.openExistingPartData(currentFile.getAbsolutePath());
         }
         readAudioDataNodes(currentPath + "/.notes");
+        readChordDataNodes(currentPath + "/.chords");
         outputFile = currentPath+"/" +"1.3gp";
 
         recordStop.setOnClickListener(new View.OnClickListener(){
@@ -104,6 +106,7 @@ public class StudioActivity extends AppCompatActivity {
                         studioView.stop();
                         try{
                             writeAudioDataNodes(currentPath + "/.notes");
+                            writeChordDataNodes(currentPath + "/.chords");
                         }
                         catch(FileNotFoundException fnfe){
                             fnfe.printStackTrace();
@@ -131,7 +134,8 @@ public class StudioActivity extends AppCompatActivity {
         });
     }
     private void writeAudioDataNodes(String path) throws FileNotFoundException, IOException{
-        try{
+        studioView.saveAudioData();
+        /*try{
             FileOutputStream fos =  new FileOutputStream(path);
             ObjectOutputStream out = new ObjectOutputStream(fos);
             out.writeObject(studioView.getAudioData());
@@ -143,7 +147,23 @@ public class StudioActivity extends AppCompatActivity {
         }
         catch(IOException ioe){
             throw(ioe);
+        }*/
+    }
+    private void writeChordDataNodes(String path) throws FileNotFoundException, IOException{
+        studioView.saveChordData();
+        /*try{
+            FileOutputStream fos =  new FileOutputStream(path);
+            ObjectOutputStream out = new ObjectOutputStream(fos);
+            out.writeObject(studioView.getChordData());
+            out.close();
+            fos.close();
         }
+        catch(FileNotFoundException fnfe){
+            throw(fnfe);
+        }
+        catch(IOException ioe){
+            throw(ioe);
+        }*/
     }
 
     private void readAudioDataNodes(String path){
@@ -164,6 +184,26 @@ public class StudioActivity extends AppCompatActivity {
         }
         if (ary != null){
             studioView.setAudioData(ary);
+        }
+    }
+    private void readChordDataNodes(String path){
+        ArrayList<ChordData> ary = null;
+        try {
+            FileInputStream fin = new FileInputStream(path);
+            ObjectInputStream in = new ObjectInputStream(fin);
+            ary = (ArrayList<ChordData>) in.readObject();
+            in.close();
+            fin.close();
+        } catch (IOException i) {
+            i.printStackTrace();
+            return;
+        } catch (ClassNotFoundException c) {
+            System.out.println("Class not found");
+            c.printStackTrace();
+            return;
+        }
+        if (ary != null){
+            studioView.setChordData(ary);
         }
     }
 }

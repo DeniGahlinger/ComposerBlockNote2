@@ -5,18 +5,20 @@ import android.os.Handler;
 
 import org.billthefarmer.mididriver.MidiDriver;
 
+import java.io.Serializable;
+
 /**
  * Created by admin on 12.01.2018.
  */
 
-class ChordData {
+class ChordData implements Serializable{
     public int begin;
     public int end;
     private int type = 0;
     private int previousType = 0;
     private int nextType = 0;
     private transient Handler handler;
-    private boolean isPlaying;
+    private int isPlaying = 0;
     private int[][] chordNotes = {
             {-12, 0, 7, 12, 16},
             {-10, 2, 9, 14, 17},
@@ -46,7 +48,7 @@ class ChordData {
         byte[] event = new byte[3];
         event[0] = (byte) (0x90 | 0x00);  // 0x90 = note On, 0x00 = channel 1
         event[1] = note;  // 0x3C = middle C
-        event[2] = (byte) 0x7F;
+        event[2] = (byte) 0x60;
         midiDriver.write(event);
         //Source : https://stackoverflow.com/questions/36193250/android-6-0-marshmallow-how-to-play-midi-notes
     }
@@ -101,18 +103,22 @@ class ChordData {
         end += delay;
     }
     public void play(int currentTime, int ton, MidiDriver md){
-        isPlaying = true;
-        if(currentTime < begin){
-            playAudioWithDelay(begin - currentTime, ton, md, false);
-            playAudioWithDelay(end - currentTime, ton, md, true);
+        isPlaying++;
+        if(isPlaying > 100){
+            isPlaying = 1;
         }
+        if(currentTime < begin){
+            playAudioWithDelay(isPlaying, begin - currentTime, ton, md, false);
+            playAudioWithDelay(isPlaying, end - currentTime, ton, md, true);
+        }
+
     }
-    public void playAudioWithDelay(int myDelay, final int tonality, final MidiDriver midiDriver, final boolean isStopping) {
+    public void playAudioWithDelay(final int isPlayingOld, int myDelay, final int tonality, final MidiDriver midiDriver, final boolean isStopping) {
         handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (isPlaying) {
+                if (isPlaying == isPlayingOld) {
                     if(isStopping){
                         stopChord(tonality, midiDriver);
                     } else {
@@ -124,14 +130,13 @@ class ChordData {
         }, myDelay);
     }
     public void stop(int tonality, MidiDriver midiDriver){
-        isPlaying = false;
         stopChord(tonality, midiDriver);
+        isPlaying = 0;
     }
     public void setEnd(int time){
         if(end+time-begin>100){
             end = end+time;
         }
-
     }
     public void setBegin(int time){
         if(end-time-begin>100){
