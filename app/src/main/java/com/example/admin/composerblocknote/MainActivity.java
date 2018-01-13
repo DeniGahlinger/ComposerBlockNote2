@@ -46,7 +46,8 @@ public class MainActivity extends AppCompatActivity {
                 songName
         );
         lvwSongs.setAdapter(adapterlst);
-
+        //MainActivityListAdapter adapter = new MainActivityListAdapter(MainActivity.this, android.R.layout.simple_list_item_1, songName);
+        //lvwSongs.setAdapter(adapter);
 
         // open a folder
         FileManager fm = new FileManager(this.getBaseContext(),this);

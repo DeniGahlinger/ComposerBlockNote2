@@ -4,14 +4,11 @@ import android.Manifest;
 import android.graphics.PorterDuff;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
-import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.cuboid.cuboidcirclebutton.CuboidButton;
@@ -52,7 +49,6 @@ public class StudioActivity extends AppCompatActivity {
         recordStop = (CuboidButton) findViewById(R.id.recordStop);
 
         studioView = (StudioManagerView) findViewById(R.id.myStudioManager);
-        //play.setEnabled(false);
         currentPath = getIntent().getStringExtra("currentPath");
         File currentFile = new File(currentPath);
         studioView.openSongData(currentFile.getParent());
@@ -90,9 +86,6 @@ public class StudioActivity extends AppCompatActivity {
                         } catch (IOException ioe){
                             ioe.printStackTrace();
                         }
-                        //recordStop.setText("Stop");
-                        //recordStop.setText("@drawable/ic_stop_red");
-                        //recordStop.setCr_icon(1);
                         recording = true;
                         play.setEnabled(false);
 
@@ -106,8 +99,6 @@ public class StudioActivity extends AppCompatActivity {
                         myAudioRecorder.release();
                         myAudioRecorder = null;
                         recording = false;
-                        //recordStop.setText("Record");
-                        //recordStop.setText("@drawable/ic_micro_white");
                         play.setEnabled(true);
                         Toast.makeText(getApplicationContext(), "Audio Recorded succesfully", Toast.LENGTH_LONG).show();
                         studioView.stop();
@@ -130,21 +121,10 @@ public class StudioActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(!playing){
                     playing = true;
-                    /*mediaPlayer = new MediaPlayer();
-                    try{
-                        mediaPlayer.setDataSource(outputFile);
-                        mediaPlayer.prepare();
-                        mediaPlayer.seekTo(-2000);
-                        mediaPlayer.start();
-                        Toast.makeText(getApplicationContext(), "Playing Audio", Toast.LENGTH_LONG).show();
-                    }catch(Exception e){
-                        Toast.makeText(getApplicationContext(), "An error has occured!", Toast.LENGTH_LONG).show();
-                    }*/
                     studioView.play(currentPath,false);
                 }
                 else {
                     playing = false;
-                    //mediaPlayer.stop();
                     studioView.stop();
                 }
             }

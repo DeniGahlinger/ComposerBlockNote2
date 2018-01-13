@@ -14,7 +14,6 @@ import java.io.Serializable;
  * Created by admin on 18.11.2017.
  */
 
-
 public class AudioNoteData implements Serializable{
     private static final long serialVersionUID = 1L;
     private boolean isPlaying;
@@ -22,6 +21,8 @@ public class AudioNoteData implements Serializable{
     private int length;
     private transient MediaPlayer mediaPlayer;
     private transient Handler handler;
+    private String filePath;
+
     public AudioNoteData(int delay){
         this.delay = delay;
     }
@@ -75,13 +76,12 @@ public class AudioNoteData implements Serializable{
             }
         }, myDelay);
     }
-    public void stop(){
+    public void stop() {
         isPlaying = false;
-        if(mediaPlayer != null){
-            if(mediaPlayer.isPlaying()){
+        if (mediaPlayer != null) {
+            if (mediaPlayer.isPlaying()) {
                 mediaPlayer.stop();
             }
         }
     }
-
 }
