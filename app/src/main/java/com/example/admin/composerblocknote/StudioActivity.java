@@ -40,6 +40,22 @@ public class StudioActivity extends AppCompatActivity {
         System.out.println("finished");
         finish();
     }
+    /*
+    Aller sur la page de choix des parties, pas sur le créatieur de musiques,
+    vu que nous sommes ici... LA MUSIQUE EXISTE DEJA!!!
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent msg) {
+
+        switch(keyCode) {
+            case(KeyEvent.KEYCODE_BACK):
+                Intent a1_intent = new Intent(this, A1Activity.class);
+                startActivity(a1_intent);
+                finish();
+                return true
+        }
+        return false;
+    }
+    */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

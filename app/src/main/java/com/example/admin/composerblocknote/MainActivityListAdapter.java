@@ -12,7 +12,7 @@ import android.widget.TextView;
 import java.util.List;
 
 /**
- * Created by guill on 22/12/2017.
+ * Created by Guillaume Noguera on 22/12/2017.
  */
 
 public class MainActivityListAdapter<T> extends ArrayAdapter {
