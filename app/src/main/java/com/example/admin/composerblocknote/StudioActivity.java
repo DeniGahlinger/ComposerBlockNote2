@@ -56,25 +56,12 @@ public class StudioActivity extends AppCompatActivity {
         switch(keyCode) {
             case(KeyEvent.KEYCODE_BACK):
                 Intent intent = new Intent(this, PartNavigatorActivity.class);
-                String name = (String) getIntent().getExtras().get("songName");
+                String name = (String) getIntent().getExtras().get("songSongName");
                 FileManager fm = new FileManager(this.getBaseContext(),this);
                 baseFolder = fm.getMusicStorageDir(mainDirName);
                 if (baseFolder == null){
                     baseFolder = fm.createMusicStorageDir(mainDirName);
                 }
-
-                Log.d("DEBUGMA", "1------------------------------------------------");
-                Set<String> keys = this.getIntent().getExtras().keySet();
-
-                for (String key : keys)
-                {
-                    Log.d("DEBUGMA_LIST", key);
-                }
-
-                Log.d("DEBUGMA", "2------------------------------------------");
-                Log.d("DEBUGMA_LIFE", name);
-                Log.d("DEBUGMA_LIFE", mainDirName);
-                Log.d("DEBUGMA_LIFE", baseFolder.getName());
 
                 intent.putExtra("songName", name);
                 intent.putExtra("mainDir", mainDirName);

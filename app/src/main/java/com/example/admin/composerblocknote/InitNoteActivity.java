@@ -27,6 +27,7 @@ public class InitNoteActivity extends AppCompatActivity
     Spinner spSign;
     EditText textSongName;
     EditText textPartName;
+    private String songName;
 
     ArrayAdapter<String> adp1;
     boolean isNewSong;
@@ -58,6 +59,7 @@ public class InitNoteActivity extends AppCompatActivity
 
         if (str.equals("yes"))
         {
+            songName = this.getIntent().getExtras().getString("songName");
             spTemp.setSelection(100);
             spSign.setSelection(2);
             spSign2.setSelection(3);
@@ -108,18 +110,18 @@ public class InitNoteActivity extends AppCompatActivity
                     {
                         Log.d("NRV", "Wasn't able to create folder .. ");
                     }
-
                     Intent intent = new Intent(InitNoteActivity.this, StudioActivity.class);
                     intent.putExtra("currentPath", partFolder.getAbsolutePath());
                     intent.putExtra("newPart", true);
+                    songName = textSongName.getText().toString();
+                    intent.putExtra("songSongName", songName);
                     startActivity(intent);
-                } else
+                } else // Is NOT new song.
                 {
                     songFolder = (File) getIntent().getExtras().get("songFolder");
                     partFolder = new File(songFolder.getAbsolutePath() + "/" + textPartName.getText());
                     if (partFolder.exists())
                     {
-
                     } else
                     {
                         partFolder.mkdir();
@@ -141,6 +143,9 @@ public class InitNoteActivity extends AppCompatActivity
                         Intent intent = new Intent(InitNoteActivity.this, StudioActivity.class);
                         intent.putExtra("currentPath", partFolder.getAbsolutePath());
                         intent.putExtra("newPart", true);
+                        songName = getIntent().getExtras().getString("songName");
+                        intent.putExtra("songSongName", songName);
+
                         startActivity(intent);
                     }
                 }

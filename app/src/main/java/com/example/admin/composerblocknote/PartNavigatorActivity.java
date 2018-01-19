@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -13,6 +14,7 @@ import android.widget.ListView;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class PartNavigatorActivity extends AppCompatActivity {
 
@@ -20,6 +22,7 @@ public class PartNavigatorActivity extends AppCompatActivity {
     Button btnAdd;
     private List<String> partName = new ArrayList<String>();
     private List<String> partPath = new ArrayList<String>();
+    private String songName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,9 +37,11 @@ public class PartNavigatorActivity extends AppCompatActivity {
         File[] parts = null;
         File songFolder = null;
         for (File f : files) {
+            songName = getIntent().getStringExtra("songName");
             if (f.getName().equals(getIntent().getStringExtra("songName"))) {
                 parts = f.listFiles();
                 songFolder = f;
+                break;
             }
         }
         for (File f : parts) {
@@ -59,9 +64,9 @@ public class PartNavigatorActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(PartNavigatorActivity.this, StudioActivity.class);
-                intent.putExtra("songName", partName.get(position));
+               intent.putExtra("songName", partName.get(position)); // Part name! Bad name.
+                intent.putExtra("songSongName", songName); // Part name! Bad name.
                 intent.putExtra("currentPath", partPath.get(position));
-                Log.d("FILENAME : ", partPath.get(position));
                 intent.putExtra("newPart", false);
                 startActivity(intent);
             }
@@ -76,9 +81,24 @@ public class PartNavigatorActivity extends AppCompatActivity {
                 intent.putExtra("isNewSong", "no");
                 File mainFolder = (File) intent.getExtras().get("InitMainDir");
                 intent.putExtra("mainDir", mainFolder);
+                intent.putExtra("songName", songName);
                 intent.putExtra("songFolder", finalSongFolder);
                 startActivity(intent);
             }
         });
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent msg) {
+
+        switch(keyCode) {
+            case(KeyEvent.KEYCODE_BACK):
+                Intent intent = new Intent(this, MainActivity.class);
+
+                startActivity(intent);
+                finish();
+                return true;
+        }
+        return false;
     }
 }
