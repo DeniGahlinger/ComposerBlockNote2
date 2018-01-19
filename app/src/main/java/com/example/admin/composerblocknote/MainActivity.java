@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     ListViewCB lvwSongs;
     Button btnAdd;
     Button btnDelete;
+    Button btnCancel;
     private List<String> songName = new ArrayList<String>();
     private String mainDirName = "ComposerBlockNote";
     private File baseFolder;
@@ -44,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
         lvwSongs = (ListViewCB) findViewById(R.id.lvwSongs);
         btnAdd = (Button) findViewById(R.id.btnAdd);
         btnDelete = (Button) findViewById(R.id.deleteButton);
+        btnCancel = (Button) findViewById(R.id.cancelDeleteButton);
 
         final ArrayAdapter<String> adapterlst = new ArrayAdapter<String>(
                 MainActivity.this,
@@ -79,7 +81,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
                                            int pos, long id) {
-                //TODO : add a contextual menu which asks for confirmation when deleting a project
                 if (checkBoxesVisible){
                     lvwSongs.showCheckboxes(false);
                 }
@@ -89,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 checkBoxesVisible = !checkBoxesVisible;
                 findViewById(R.id.deleteRow).setVisibility(checkBoxesVisible ? View.VISIBLE : View.GONE);
+                findViewById(R.id.newRow).setVisibility(checkBoxesVisible ? View.GONE : View.VISIBLE);
                 return true;
             }
         });
@@ -110,9 +112,25 @@ public class MainActivity extends AppCompatActivity {
                 }
                 lvwSongs.showCheckboxes(false);
                 checkBoxesVisible = false;
+                findViewById(R.id.newRow).setVisibility(View.VISIBLE);
                 findViewById(R.id.deleteRow).setVisibility(View.GONE);
             }
         });
+
+        btnCancel.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                for (int i = 0; i < lvwSongs.getChildCount(); i++){
+                    lvwSongs.setCheckbox(false, i);
+                }
+                checkBoxesVisible = false;
+                lvwSongs.showCheckboxes(checkBoxesVisible);
+                findViewById(R.id.newRow).setVisibility(View.VISIBLE);
+                findViewById(R.id.deleteRow).setVisibility(View.GONE);
+            }
+
+        });
+
 
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override

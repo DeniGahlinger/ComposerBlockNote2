@@ -11,8 +11,8 @@ import java.util.ArrayList;
 
 /**
  * Created by narval on 12/01/2018.
+ * Custom adapter to support our custom listview
  */
-
 class ListViewCB extends ListView {
     public ListViewCB(Context context) {
         super(context);
@@ -30,12 +30,6 @@ class ListViewCB extends ListView {
         return (CheckBox) v.findViewById(R.id.listItemDeleteCheckbox);
     }
 
-    @Override
-    public void deferNotifyDataSetChanged() {
-        super.deferNotifyDataSetChanged();
-        //todo
-    }
-
     public void showCheckboxes(boolean b){
         for (int i = 0; i < this.getChildCount(); i++){
             getChildAt(i).findViewById(R.id.listItemDeleteCheckbox).setVisibility(b ? VISIBLE : GONE);
@@ -43,9 +37,6 @@ class ListViewCB extends ListView {
     }
     public void setCheckbox(boolean b, int id){
         CheckBox cb = (CheckBox)getChildAt(id).findViewById(R.id.listItemDeleteCheckbox);
-        if (cb == null){
-            System.out.println("cb null");
-        }
         cb.setChecked(b);
     }
 
