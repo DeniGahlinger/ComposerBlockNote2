@@ -90,4 +90,7 @@ public class AudioNoteData implements Serializable{
             }
         }
     }
+    public void stopRecording(){
+        delay -= 450;
+    }
 }

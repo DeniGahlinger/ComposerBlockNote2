@@ -459,6 +459,7 @@ public class StudioManagerView extends View {
     public void finishAddingNewAudio(){
         if(isRecoding){
             audioData.get(audioData.size()-1).setLength((int)cursorPosition - audioData.get(audioData.size()-1).getDelay());
+            audioData.get(audioData.size()-1).stopRecording();
         }
         isRecoding = false;
     }
