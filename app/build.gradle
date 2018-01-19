@@ -30,4 +30,5 @@ dependencies {
 
     // ADD Library.
     compile 'com.cuboid:cuboidcirclebutton:1.0.3'
+    compile(name:'MidiDriver', ext:'aar')
 }

@@ -5,28 +5,32 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.shapes.RectShape;
-import android.os.Bundle;
 import android.support.v4.view.MotionEventCompat;
-import android.text.TextPaint;
 import android.util.AttributeSet;
-import android.view.DragEvent;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
+import org.billthefarmer.mididriver.MidiDriver;
 
 /**
  * TODO: document your custom view class.
@@ -37,18 +41,31 @@ public class StudioManagerView extends View {
     private float mExampleDimension = 0; // TODO: use a default from R.dimen...
     private Drawable mExampleDrawable;
 
+    private String path;
+
     List<RectShape> records = new ArrayList<RectShape>();
+
+    private int MAX_DELAY_FOR_DOUBLE_TAP = 250;
+    private long firstTapTimeOfDoubleTap = System.currentTimeMillis();
 
     private boolean isRecoding = false;
 
     public float mouseX = -1;
     public float mouseY = -1;
 
+    private int[][] chordCoulours =  {{10,30,200},{170,80,240},{250,140,0},{10,180,25},{225,220,20},{200,30,20}};
+    private int[][] chordCouloursWhithed =  {{15,45,250},{210,120,255},{255,190,60},{20,240,45},{255,255,80},{255,100,60}};
+
     private int trackHeight = 80;
 
     private Paint mTextPaint;
     private float mTextWidth;
     private float mTextHeight;
+
+    private int tonality = 60;
+
+    private int sizeButtonTonalityX = 70;
+    private int sizeButtonTonalityY = 50;
 
     private float cursorPosition = 0;
     private int tempo = 120;
@@ -58,6 +75,17 @@ public class StudioManagerView extends View {
     private boolean isPlaying = false;
     private Timer timer = new Timer();
     public ArrayList<AudioNoteData> audioData = new ArrayList<AudioNoteData>();
+    private ArrayList<ChordData> chordDatas = new ArrayList<ChordData>();
+
+    MidiDriver midiDriver = new MidiDriver();
+    private int otherDatasSize = 125;
+    private int rectChordModifierSize = 40;
+    private int touchState = 0; // 0 : none, 1 : scroll, 2 : displace audio, 3 : displace midi, 4 : resizing midi, 5 switch chord
+    private int touchObjectId = -1;
+    private int touchSwitchChord = 0;
+    private int isDeletingChord = -1;
+    private boolean mustSaveAudios;
+    private boolean mustSaveChords;
 
     public StudioManagerView(Context context) {
         super(context);
@@ -76,6 +104,7 @@ public class StudioManagerView extends View {
 
     private void init(AttributeSet attrs, int defStyle) {
         // Load attributes
+
         final TypedArray a = getContext().obtainStyledAttributes(
                 attrs, R.styleable.StudioManagerView, defStyle, 0);
 
@@ -112,12 +141,74 @@ public class StudioManagerView extends View {
                     case MotionEvent.ACTION_DOWN:
                         break;
                     case MotionEvent.ACTION_UP:
+                        touchState = 0;
+                        touchObjectId = -1;
                         mouseX = -1;
                         mouseY = -1;
+                        if(System.currentTimeMillis() - firstTapTimeOfDoubleTap < MAX_DELAY_FOR_DOUBLE_TAP){
+                            if(event.getY()> getHeight() - otherDatasSize){
+                                for(int i = 0; i<chordDatas.size(); i++){
+                                    if(event.getX()>(getWidth() / 2) + chordDatas.get(i).getDelay()* zoom / 60000f - (cursorPosition * zoom / 60000f)){
+                                        if(event.getX()<(getWidth() / 2) + chordDatas.get(i).getDelay() * zoom / 60000f + chordDatas.get(i).getLength() * zoom / 60000f - (cursorPosition * zoom / 60000f) - rectChordModifierSize){
+                                            isDeletingChord = i;
+                                        }
+                                    }
+                                }
+                            } else {
+                                for (int i = 0; i < audioData.size(); i++) {
+                                    if (event.getX() > (getWidth() / 2) + audioData.get(i).getDelay() * zoom / 60000f - (cursorPosition * zoom / 60000f)) {
+                                        if (event.getX() < (getWidth() / 2) + audioData.get(i).getDelay() * zoom / 60000f + audioData.get(i).getLength() * zoom / 60000f - (cursorPosition * zoom / 60000f)) {
+                                            if (event.getY() > getPaddingTop() + 55 + i * trackHeight) {
+                                                if (event.getY() < getPaddingTop() + 55 + (trackHeight - 5) + i * trackHeight) {
+                                                    isDeletingChord = - i - 3;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            doubleTap((int)event.getX());
+                        }
+                        else{
+                            isDeletingChord = -1;
+                        }
+                        if(event.getX() > getPaddingLeft() + 5 && event.getY() > getPaddingTop() + 5 && event.getX() < getPaddingLeft() + 5 + sizeButtonTonalityX && event.getY() < getPaddingTop() + 5 + sizeButtonTonalityY){
+                            tonality++;
+                            isDeletingChord = -2;
+                            try {
+                                saveTonality();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } else if (event.getX() > getPaddingLeft() + 5 && event.getY() > getPaddingTop() + 5 + 2 * sizeButtonTonalityY && event.getX() < getPaddingLeft() + 5 + sizeButtonTonalityX && event.getY() < getPaddingTop() + 5 + 3 * sizeButtonTonalityY){
+                            tonality--;
+                            isDeletingChord = -2;
+                            try {
+                                saveTonality();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            firstTapTimeOfDoubleTap = System.currentTimeMillis();
+                        }
+                        try {
+                            if(mustSaveAudios){
+                                saveAudioData();
+                            }
+                            if(mustSaveChords){
+                                saveChordData();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        mustSaveAudios = false;
+                        mustSaveChords = false;
+                        v.invalidate();
                         break;
                     case MotionEvent.ACTION_POINTER_DOWN:
                         break;
                     case MotionEvent.ACTION_POINTER_UP:
+                        touchState = 0;
                         mouseX = -1;
                         mouseY = -1;
                         break;
@@ -125,20 +216,63 @@ public class StudioManagerView extends View {
                         //cursorPosition += (mouseX - event.getX())*zoom / 1800f;
 
                         if(mouseX != -1 && isPlaying == false){
-                            boolean scroll = true;
-                            for(int i = 0; i<audioData.size(); i++){
-                                if(event.getX()>(getWidth() / 2) + audioData.get(i).getDelay()* zoom / 60000f - (cursorPosition * zoom / 60000f)){
-                                    if(event.getX()<(getWidth() / 2) + audioData.get(i).getDelay() * zoom / 60000f + audioData.get(i).getLength() * zoom / 60000f - (cursorPosition * zoom / 60000f)){
-                                        if(event.getY()>getPaddingTop() + 55 + i * trackHeight){
-                                            if(event.getY()<getPaddingTop() + 55 + (trackHeight-5) + i * trackHeight){
-                                                scroll=false;
-                                                audioData.get(i).setDelay(audioData.get(i).getDelay() - (int)((mouseX - event.getX()) * 60000 / zoom));
+                            if(touchState == 0 || touchState == 2) {
+                                for (int i = 0; i < audioData.size(); i++) {
+                                    if (event.getX() > (getWidth() / 2) + audioData.get(i).getDelay() * zoom / 60000f - (cursorPosition * zoom / 60000f)) {
+                                        if (event.getX() < (getWidth() / 2) + audioData.get(i).getDelay() * zoom / 60000f + audioData.get(i).getLength() * zoom / 60000f - (cursorPosition * zoom / 60000f)) {
+                                            if (event.getY() > getPaddingTop() + 55 + i * trackHeight) {
+                                                if (event.getY() < getPaddingTop() + 55 + (trackHeight - 5) + i * trackHeight) {
+                                                    touchState = 2;
+                                                    touchObjectId = i;
+                                                    audioData.get(i).setDelay(audioData.get(i).getDelay() - (int) ((mouseX - event.getX()) * 60000 / zoom));
+                                                    mustSaveAudios = true;
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
-                            if(scroll == true){
+                            if(event.getY()> getPaddingTop() - 55 + getHeight() - otherDatasSize || touchState == 3 || touchState == 4 || touchState == 5){
+                                for(int i = 0; i<chordDatas.size(); i++){
+                                    if(event.getX()>(getWidth() / 2) + chordDatas.get(i).getDelay()* zoom / 60000f - (cursorPosition * zoom / 60000f) + rectChordModifierSize){
+                                        if((touchState == 0 || touchState == 3 || touchState == 5) && ((touchObjectId == i && (touchState == 3 || touchState == 5)) || (touchState == 0 && event.getX()<(getWidth() / 2) + chordDatas.get(i).getDelay() * zoom / 60000f + chordDatas.get(i).getLength() * zoom / 60000f - (cursorPosition * zoom / 60000f) - rectChordModifierSize))){
+                                            if(Math.abs(mouseY - event.getY())>Math.abs(mouseX - event.getX())){
+                                                touchState=5;
+                                                touchObjectId = i;
+                                                touchSwitchChord -= mouseY - event.getY();
+                                                if(touchSwitchChord > otherDatasSize / 2){
+                                                    chordDatas.get(i).upType();
+                                                    touchSwitchChord = touchSwitchChord - otherDatasSize;
+                                                    mustSaveChords = true;
+                                                } else if(touchSwitchChord < -otherDatasSize / 2){
+                                                    chordDatas.get(i).downType();
+                                                    touchSwitchChord = touchSwitchChord + otherDatasSize;
+                                                    mustSaveChords = true;
+                                                }
+                                            } else {
+                                                touchState=3;
+                                                touchObjectId = i;
+                                                chordDatas.get(i).displace(-(int)((mouseX - event.getX()) * 60000 / zoom));
+                                                mustSaveChords = true;
+                                            }
+
+                                        }
+                                        else if((touchState == 0 || touchState == 4) && ((touchObjectId == i * 2 && touchState == 4) || (touchState == 0 && event.getX()<(getWidth() / 2) + chordDatas.get(i).getDelay() * zoom / 60000f + chordDatas.get(i).getLength() * zoom / 60000f - (cursorPosition * zoom / 60000f)))){
+                                            mustSaveChords = true;
+                                            touchState=4;
+                                            touchObjectId = i * 2;
+                                            chordDatas.get(i).setEnd(-(int)((mouseX - event.getX()) * 60000 / zoom));
+                                        }
+                                    } else if((touchState == 0 || touchState == 4) && ((touchObjectId == i * 2 + 1 && touchState == 4) || (touchState == 0 && event.getX()>(getWidth() / 2) + chordDatas.get(i).getDelay()* zoom / 60000f - (cursorPosition * zoom / 60000f)))){
+                                        touchState=4;
+                                        touchObjectId = i * 2 + 1;
+                                        chordDatas.get(i).setBegin(-(int)((mouseX - event.getX()) * 60000 / zoom));
+                                        mustSaveChords = true;
+                                    }
+                                }
+                            }
+                            if(touchState == 1 || touchState == 0){
+                                touchState = 1;
                                 cursorPosition += (mouseX - event.getX()) * 60000 / zoom;
                             }
                             v.invalidate();
@@ -147,12 +281,28 @@ public class StudioManagerView extends View {
                         mouseY = event.getY();
                         break;
                 }
+                //Log.d("TOUCHSTATE", "touchState : " + touchState + ", objID : " + touchObjectId);
                 return true;
 
             }
         });
         // Update TextPaint and text measurements from attributes
         invalidateTextPaintAndMeasurements();
+    }
+    public void doubleTap(int mouseX){
+        if(isDeletingChord == -1){
+            chordDatas.add(new ChordData((mouseX - getWidth() / 2) * 60000 / zoom + (int)(cursorPosition) - 500, (mouseX - getWidth() / 2) * 60000 / zoom + (int)(cursorPosition) + 500, 0));
+            mustSaveChords = true;
+        } else if(isDeletingChord > -1){
+            chordDatas.remove(isDeletingChord);
+            mustSaveChords = true;
+        } else if(isDeletingChord < -2){
+
+            deleteAudioFile(audioData.get(- isDeletingChord - 3).getId());
+            audioData.remove(- isDeletingChord - 3);
+            mustSaveAudios = true;
+        }
+        postInvalidate();
     }
     public void openSongData(String path) {
         try {
@@ -226,6 +376,8 @@ public class StudioManagerView extends View {
         canvas.drawRect((getWidth() / 2) - (cursorPosition * zoom / 60000f) - 2, 0, (getWidth() / 2) - (cursorPosition * zoom / 60000f) + 2, getHeight(), mTextPaint);
         mTextPaint.setColor(Color.rgb(200,200,200));
         printAudios(canvas);
+        printChords(canvas);
+        printTonalityUI(canvas);
         mTextPaint.setColor(Color.argb(200,30,255,0));
         canvas.drawRect((getWidth() / 2) - 25, paddingTop, (getWidth() / 2) + 25, paddingTop + 50, mTextPaint);
         canvas.drawRect((getWidth() / 2) - 5, 0, (getWidth() / 2) + 5, getHeight(), mTextPaint);
@@ -234,6 +386,48 @@ public class StudioManagerView extends View {
         printMetronome(canvas);
 
 
+    }
+    private void printTonalityUI(Canvas canvas){
+        mTextPaint.setColor(Color.rgb(130,130,130));
+        canvas.drawRect(getPaddingLeft() + 5, getPaddingTop() + 5, getPaddingLeft() + 5 + sizeButtonTonalityX, getPaddingTop() + 5 + sizeButtonTonalityY, mTextPaint);
+        canvas.drawRect(getPaddingLeft() + 5, getPaddingTop() + 5 + 2 * sizeButtonTonalityY, getPaddingLeft() + 5 + sizeButtonTonalityX, getPaddingTop() + 5 + 3 * sizeButtonTonalityY, mTextPaint);
+        mTextPaint.setTextSize(18);
+        mTextPaint.setColor(Color.BLACK);
+        canvas.drawText(tonalityToString(), getPaddingLeft() + (int)(0.5 * sizeButtonTonalityX), getPaddingTop() - 15 + 2 * sizeButtonTonalityY, mTextPaint);
+        canvas.drawText("+", getPaddingLeft() + (int)(0.5 * sizeButtonTonalityX), getPaddingTop() - 15 + 1 * sizeButtonTonalityY, mTextPaint);
+        canvas.drawText("-", getPaddingLeft() + (int)(0.5 * sizeButtonTonalityX), getPaddingTop() - 15 + 3 * sizeButtonTonalityY, mTextPaint);
+    }
+    private String tonalityToString(){
+        String[] str = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+        return str[tonality % 12];
+    }
+    private void printChords(Canvas canvas){
+        String[] chordNames = {"I", "ii", "iii", "IV", "V", "vi"};
+        for(int i = 0; i<chordDatas.size(); i++) {
+            mTextPaint.setColor(Color.rgb(chordCoulours[chordDatas.get(i).getType()][0], chordCoulours[chordDatas.get(i).getType()][1], chordCoulours[chordDatas.get(i).getType()][2]));
+            canvas.drawRect((getWidth() / 2) + chordDatas.get(i).getDelay() * zoom / 60000f - (cursorPosition * zoom / 60000f), getHeight() - otherDatasSize, (getWidth() / 2) + chordDatas.get(i).getDelay() * zoom / 60000f + chordDatas.get(i).getLength() * zoom / 60000f - (cursorPosition * zoom / 60000f), getHeight(), mTextPaint);
+            mTextPaint.setColor(Color.rgb(chordCouloursWhithed[chordDatas.get(i).getType()][0], chordCouloursWhithed[chordDatas.get(i).getType()][1], chordCouloursWhithed[chordDatas.get(i).getType()][2]));
+            canvas.drawRect((getWidth() / 2) + chordDatas.get(i).getDelay() * zoom / 60000f + chordDatas.get(i).getLength() * zoom / 60000f - (cursorPosition * zoom / 60000f) - rectChordModifierSize, getHeight() - otherDatasSize, (getWidth() / 2) + chordDatas.get(i).getDelay() * zoom / 60000f + chordDatas.get(i).getLength() * zoom / 60000f - (cursorPosition * zoom / 60000f), getHeight(), mTextPaint);
+            canvas.drawRect((getWidth() / 2) + chordDatas.get(i).getDelay() * zoom / 60000f - (cursorPosition * zoom / 60000f), getHeight() - otherDatasSize, (getWidth() / 2) + chordDatas.get(i).getDelay() * zoom / 60000f - (cursorPosition * zoom / 60000f) + rectChordModifierSize, getHeight(), mTextPaint);
+            if (touchState == 5 && touchObjectId == i) {
+                if (touchSwitchChord > 0) {
+                    mTextPaint.setColor(Color.rgb(chordCoulours[chordDatas.get(i).getNextType()][0], chordCoulours[chordDatas.get(i).getNextType()][1], chordCoulours[chordDatas.get(i).getNextType()][2]));
+                    canvas.drawRect((getWidth() / 2) + chordDatas.get(i).getDelay() * zoom / 60000f - (cursorPosition * zoom / 60000f), getHeight() - otherDatasSize, (getWidth() / 2) + chordDatas.get(i).getDelay() * zoom / 60000f + chordDatas.get(i).getLength() * zoom / 60000f - (cursorPosition * zoom / 60000f), getHeight() - otherDatasSize + touchSwitchChord, mTextPaint);
+                    mTextPaint.setColor(Color.rgb(chordCouloursWhithed[chordDatas.get(i).getNextType()][0], chordCouloursWhithed[chordDatas.get(i).getNextType()][1], chordCouloursWhithed[chordDatas.get(i).getNextType()][2]));
+                    canvas.drawRect((getWidth() / 2) + chordDatas.get(i).getDelay() * zoom / 60000f + chordDatas.get(i).getLength() * zoom / 60000f - (cursorPosition * zoom / 60000f) - rectChordModifierSize, getHeight() - otherDatasSize, (getWidth() / 2) + chordDatas.get(i).getDelay() * zoom / 60000f + chordDatas.get(i).getLength() * zoom / 60000f - (cursorPosition * zoom / 60000f), getHeight() - otherDatasSize + touchSwitchChord, mTextPaint);
+                    canvas.drawRect((getWidth() / 2) + chordDatas.get(i).getDelay() * zoom / 60000f - (cursorPosition * zoom / 60000f), getHeight() - otherDatasSize, (getWidth() / 2) + chordDatas.get(i).getDelay() * zoom / 60000f - (cursorPosition * zoom / 60000f) + rectChordModifierSize, getHeight() - otherDatasSize + touchSwitchChord, mTextPaint);
+                } else {
+                    mTextPaint.setColor(Color.rgb(chordCoulours[chordDatas.get(i).getPreviousType()][0], chordCoulours[chordDatas.get(i).getPreviousType()][1], chordCoulours[chordDatas.get(i).getPreviousType()][2]));
+                    canvas.drawRect((getWidth() / 2) + chordDatas.get(i).getDelay() * zoom / 60000f - (cursorPosition * zoom / 60000f), getHeight() + touchSwitchChord, (getWidth() / 2) + chordDatas.get(i).getDelay() * zoom / 60000f + chordDatas.get(i).getLength() * zoom / 60000f - (cursorPosition * zoom / 60000f), getHeight(), mTextPaint);
+                    mTextPaint.setColor(Color.rgb(chordCouloursWhithed[chordDatas.get(i).getPreviousType()][0], chordCouloursWhithed[chordDatas.get(i).getPreviousType()][1], chordCouloursWhithed[chordDatas.get(i).getPreviousType()][2]));
+                    canvas.drawRect((getWidth() / 2) + chordDatas.get(i).getDelay() * zoom / 60000f + chordDatas.get(i).getLength() * zoom / 60000f - (cursorPosition * zoom / 60000f) - rectChordModifierSize, getHeight() + touchSwitchChord, (getWidth() / 2) + chordDatas.get(i).getDelay() * zoom / 60000f + chordDatas.get(i).getLength() * zoom / 60000f - (cursorPosition * zoom / 60000f), getHeight(), mTextPaint);
+                    canvas.drawRect((getWidth() / 2) + chordDatas.get(i).getDelay() * zoom / 60000f - (cursorPosition * zoom / 60000f), getHeight() + touchSwitchChord, (getWidth() / 2) + chordDatas.get(i).getDelay() * zoom / 60000f - (cursorPosition * zoom / 60000f) + rectChordModifierSize, getHeight(), mTextPaint);
+                }
+            }
+            mTextPaint.setColor(Color.rgb(0, 0, 0));
+            mTextPaint.setTextSize(18);
+            canvas.drawText(chordNames[chordDatas.get(i).getType()], (getWidth() / 2) + chordDatas.get(i).getDelay() * zoom / 60000f - (cursorPosition * zoom / 60000f) + chordDatas.get(i).getLength() * zoom / 120000f, getHeight() - otherDatasSize / 2, mTextPaint);
+        }
     }
     private void printAudios(Canvas canvas){
         mTextPaint.setColor(Color.rgb(10,70,255));
@@ -253,10 +447,12 @@ public class StudioManagerView extends View {
     }
     public void addNewAudio(){
         isRecoding = true;
+        int newID = getNextAudioID();
         audioData.add(new AudioNoteData((int)cursorPosition));
         if(getHeight() < trackHeight * audioData.size() + 55 + getPaddingTop() + getPaddingBottom()){
-            trackHeight = (getHeight() - 55 - getPaddingTop() - getPaddingBottom()) / audioData.size();
+            trackHeight = (getHeight() - otherDatasSize - 55 - getPaddingTop() - getPaddingBottom()) / audioData.size();
         }
+        audioData.get(audioData.size()-1).setId(newID);
     }
     public void finishAddingNewAudio(){
         if(isRecoding){
@@ -265,9 +461,16 @@ public class StudioManagerView extends View {
         isRecoding = false;
     }
     public int getNextAudioID(){
-        return audioData.size();
+        int id = 1;
+        if(audioData.size()>0){
+            id = audioData.get(audioData.size() - 1).getId() + 1;
+        }
+        Log.d("NOTEID : ", "Id de l'audio : " + id);
+        return id;
     }
     public void play(String path, boolean isRec){
+        midiDriver.start();
+
         int maxValueOfAudio;
         if(isRec){
             maxValueOfAudio = audioData.size() - 1;
@@ -276,7 +479,10 @@ public class StudioManagerView extends View {
             maxValueOfAudio = audioData.size();
         }
         for(int i = 0; i<maxValueOfAudio; i++){
-            audioData.get(i).play((int)cursorPosition,path,i);
+            audioData.get(i).play((int)cursorPosition, path);
+        }
+        for(int i = 0; i<chordDatas.size(); i++){
+            chordDatas.get(i).play((int)cursorPosition, tonality, midiDriver);
         }
         isPlaying = true;
         timer.cancel();
@@ -298,6 +504,9 @@ public class StudioManagerView extends View {
         isPlaying = false;
         timer.cancel();
         timer.purge();
+
+
+        midiDriver.stop();
     }
     private float getStepBlackNote(int zoom, int tempo, int signNote){
         return (zoom/(float)tempo)/* / (float)signNote*/;
@@ -354,6 +563,75 @@ public class StudioManagerView extends View {
     public void setAudioData(ArrayList<AudioNoteData> input){
         this.audioData = input;
         postInvalidate();
+    }
+    public ArrayList<ChordData> getChordData(){
+        return chordDatas;
+    }
+    public void setChordData(ArrayList<ChordData> input){
+        this.chordDatas = input;
+        postInvalidate();
+    }
+    public void setPath(String path){
+        this.path = path;
+        int ton = 60;
+        try {
+            FileInputStream fin = new FileInputStream(path + "/.tonality");
+            DataInputStream din = new DataInputStream(fin);
+            ton = din.readInt();
+            fin.close();
+        } catch (IOException i) {
+            i.printStackTrace();
+        }
+        tonality = ton;
+    }
+    public void deleteAudioFile(int fileId){
+        File fToDelete = new File(path + "/" + fileId + ".3gp");
+        fToDelete.delete();
+    }
+    public void saveTonality() throws IOException{
+        try{
+            FileOutputStream fos =  new FileOutputStream(path + "/.tonality");
+            DataOutputStream out = new DataOutputStream(fos);
+            out.writeInt(tonality);
+            out.close();
+            fos.close();
+        }
+        catch(FileNotFoundException fnfe){
+            throw(fnfe);
+        }
+        catch(IOException ioe){
+            throw(ioe);
+        }
+    }
+    public void saveAudioData() throws IOException {
+        try{
+            FileOutputStream fos =  new FileOutputStream(path + "/.notes");
+            ObjectOutputStream out = new ObjectOutputStream(fos);
+            out.writeObject(audioData);
+            out.close();
+            fos.close();
+        }
+        catch(FileNotFoundException fnfe){
+            throw(fnfe);
+        }
+        catch(IOException ioe){
+            throw(ioe);
+        }
+    }
+    public void saveChordData() throws IOException {
+        try{
+            FileOutputStream fos =  new FileOutputStream(path + "/.chords");
+            ObjectOutputStream out = new ObjectOutputStream(fos);
+            out.writeObject(chordDatas);
+            out.close();
+            fos.close();
+        }
+        catch(FileNotFoundException fnfe){
+            throw(fnfe);
+        }
+        catch(IOException ioe){
+            throw(ioe);
+        }
     }
 
     /**

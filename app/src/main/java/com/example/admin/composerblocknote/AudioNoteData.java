@@ -22,7 +22,7 @@ public class AudioNoteData implements Serializable{
     private transient MediaPlayer mediaPlayer;
     private transient Handler handler;
     private String filePath;
-
+    private int id;
     public AudioNoteData(int delay){
         this.delay = delay;
     }
@@ -38,11 +38,11 @@ public class AudioNoteData implements Serializable{
     public  int getLength(){
         return length;
     }
-    public void play(int currentTime, String path, int id){
+    public void play(int currentTime, String path){
         isPlaying = true;
         if(currentTime < delay){
             try{
-                playAudioWithDelay(delay - currentTime, path, id);
+                playAudioWithDelay(delay - currentTime, path);
             }catch(Exception e){
             }
         } else if(currentTime < delay + length){
@@ -57,7 +57,7 @@ public class AudioNoteData implements Serializable{
         }
 
     }
-    public void playAudioWithDelay(int myDelay, final String path, final int id){
+    public void playAudioWithDelay(int myDelay, final String path){
         handler = new Handler();
         handler.postDelayed(new Runnable(){
             @Override
@@ -75,6 +75,12 @@ public class AudioNoteData implements Serializable{
                 }
             }
         }, myDelay);
+    }
+    public void setId(int id){
+        this.id = id;
+    }
+    public int getId(){
+        return id;
     }
     public void stop() {
         isPlaying = false;
