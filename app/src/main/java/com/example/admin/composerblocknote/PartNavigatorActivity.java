@@ -19,6 +19,7 @@ public class PartNavigatorActivity extends AppCompatActivity {
     ListView lvwParts;
     Button btnAdd;
     private List<String> partName = new ArrayList<String>();
+    private List<String> partPath = new ArrayList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +42,7 @@ public class PartNavigatorActivity extends AppCompatActivity {
         for (File f : parts) {
             if (!f.getName().equals(".meta")) {
                 partName.add(f.getName());
+                partPath.add(f.getAbsolutePath());
             }
         }
         File partFolder = null;
@@ -58,7 +60,8 @@ public class PartNavigatorActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(PartNavigatorActivity.this, StudioActivity.class);
                 intent.putExtra("songName", partName.get(position));
-                intent.putExtra("currentPath", finalParts[position].getAbsolutePath());
+                intent.putExtra("currentPath", partPath.get(position));
+                Log.d("FILENAME : ", partPath.get(position));
                 intent.putExtra("newPart", false);
                 startActivity(intent);
             }

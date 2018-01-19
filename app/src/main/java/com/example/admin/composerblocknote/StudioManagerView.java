@@ -64,8 +64,8 @@ public class StudioManagerView extends View {
 
     private int tonality = 60;
 
-    private int sizeButtonTonalityX = 70;
-    private int sizeButtonTonalityY = 50;
+    private int sizeButtonTonalityX = 140;
+    private int sizeButtonTonalityY = 100;
 
     private float cursorPosition = 0;
     private int tempo = 120;
@@ -391,11 +391,13 @@ public class StudioManagerView extends View {
         mTextPaint.setColor(Color.rgb(130,130,130));
         canvas.drawRect(getPaddingLeft() + 5, getPaddingTop() + 5, getPaddingLeft() + 5 + sizeButtonTonalityX, getPaddingTop() + 5 + sizeButtonTonalityY, mTextPaint);
         canvas.drawRect(getPaddingLeft() + 5, getPaddingTop() + 5 + 2 * sizeButtonTonalityY, getPaddingLeft() + 5 + sizeButtonTonalityX, getPaddingTop() + 5 + 3 * sizeButtonTonalityY, mTextPaint);
-        mTextPaint.setTextSize(18);
+        mTextPaint.setColor(Color.rgb(220,220,220));
+        canvas.drawRect(getPaddingLeft() + 5, getPaddingTop() + 5 + 1 * sizeButtonTonalityY, getPaddingLeft() + 5 + sizeButtonTonalityX, getPaddingTop() + 5 + 2 * sizeButtonTonalityY, mTextPaint);
+        mTextPaint.setTextSize(48);
         mTextPaint.setColor(Color.BLACK);
-        canvas.drawText(tonalityToString(), getPaddingLeft() + (int)(0.5 * sizeButtonTonalityX), getPaddingTop() - 15 + 2 * sizeButtonTonalityY, mTextPaint);
-        canvas.drawText("+", getPaddingLeft() + (int)(0.5 * sizeButtonTonalityX), getPaddingTop() - 15 + 1 * sizeButtonTonalityY, mTextPaint);
-        canvas.drawText("-", getPaddingLeft() + (int)(0.5 * sizeButtonTonalityX), getPaddingTop() - 15 + 3 * sizeButtonTonalityY, mTextPaint);
+        canvas.drawText(tonalityToString(), getPaddingLeft() + (int)(0.5 * sizeButtonTonalityX) - 20, getPaddingTop() - 30 + 2 * sizeButtonTonalityY, mTextPaint);
+        canvas.drawText("+", getPaddingLeft() + (int)(0.5 * sizeButtonTonalityX) - 8, getPaddingTop() - 30 + 1 * sizeButtonTonalityY, mTextPaint);
+        canvas.drawText("-", getPaddingLeft() + (int)(0.5 * sizeButtonTonalityX) - 8, getPaddingTop() - 30 + 3 * sizeButtonTonalityY, mTextPaint);
     }
     private String tonalityToString(){
         String[] str = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
@@ -425,7 +427,7 @@ public class StudioManagerView extends View {
                 }
             }
             mTextPaint.setColor(Color.rgb(0, 0, 0));
-            mTextPaint.setTextSize(18);
+            mTextPaint.setTextSize(32);
             canvas.drawText(chordNames[chordDatas.get(i).getType()], (getWidth() / 2) + chordDatas.get(i).getDelay() * zoom / 60000f - (cursorPosition * zoom / 60000f) + chordDatas.get(i).getLength() * zoom / 120000f, getHeight() - otherDatasSize / 2, mTextPaint);
         }
     }
