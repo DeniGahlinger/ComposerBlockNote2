@@ -22,34 +22,39 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.os.Environment.getExternalStorageDirectory;
+import static com.example.admin.composerblocknote.R.id.listItemString;
 import static java.lang.System.in;
 
 public class MainActivity extends AppCompatActivity {
 
-    ListView lvwSongs;
+    //ListView lvwSongs;
+    ListViewCB lvwSongs;
     Button btnAdd;
+    Button btnDelete;
+    Button btnCancel;
     private List<String> songName = new ArrayList<String>();
     private String mainDirName = "ComposerBlockNote";
     private File baseFolder;
+    private boolean checkBoxesVisible = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        lvwSongs = (ListView) findViewById(R.id.lvwSongs);
+        lvwSongs = (ListViewCB) findViewById(R.id.lvwSongs);
         btnAdd = (Button) findViewById(R.id.btnAdd);
+        btnDelete = (Button) findViewById(R.id.deleteButton);
+        btnCancel = (Button) findViewById(R.id.cancelDeleteButton);
 
         final ArrayAdapter<String> adapterlst = new ArrayAdapter<String>(
                 MainActivity.this,
-                android.R.layout.simple_list_item_1,
-                songName
+                //android.R.layout.simple_list_item_1,
+                //songName
+                R.layout.list_element, R.id.listItemString, songName
         );
-        lvwSongs.setAdapter(adapterlst);
-        //MainActivityListAdapter adapter = new MainActivityListAdapter(MainActivity.this, android.R.layout.simple_list_item_1, songName);
-        //lvwSongs.setAdapter(adapter);
 
-        // open a folder
+        lvwSongs.setAdapter(adapterlst);
         FileManager fm = new FileManager(this.getBaseContext(),this);
         baseFolder = fm.getMusicStorageDir(mainDirName);
         if (baseFolder == null){
@@ -76,18 +81,56 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
                                            int pos, long id) {
-                //TODO : add a contextual menu which asks for confirmation when deleting a project
-                for (File f : baseFolder.listFiles()){
-                    if (f.getName().equals(songName.get(pos))){
-                        delR(f);
-                        songName.remove(pos);
-                        ((BaseAdapter)lvwSongs.getAdapter()).notifyDataSetChanged();
-                        break;
-                    }
+                if (checkBoxesVisible){
+                    lvwSongs.showCheckboxes(false);
                 }
+                else{
+                    lvwSongs.showCheckboxes(true);
+                    lvwSongs.setCheckbox(true, pos);
+                }
+                checkBoxesVisible = !checkBoxesVisible;
+                findViewById(R.id.deleteRow).setVisibility(checkBoxesVisible ? View.VISIBLE : View.GONE);
+                findViewById(R.id.newRow).setVisibility(checkBoxesVisible ? View.GONE : View.VISIBLE);
                 return true;
             }
         });
+
+        btnDelete.setOnClickListener(new View.OnClickListener() {
+            //y'aura sans doute des soucis d'itérateurs comme d'hab avec cette purge de java de mes fesses
+            @Override
+            public void onClick(View view) {
+                ArrayList<Integer> indexes = lvwSongs.getSelectedIndexes();
+                for (int i = 0; i < indexes.size(); i++){
+                    for (File f : baseFolder.listFiles()){
+                        if (f.getName().equals(songName.get(i))){
+                            delR(f);
+                            songName.remove(i);
+                            ((BaseAdapter)lvwSongs.getAdapter()).notifyDataSetChanged();
+                            break;
+                        }
+                    }
+                }
+                lvwSongs.showCheckboxes(false);
+                checkBoxesVisible = false;
+                findViewById(R.id.newRow).setVisibility(View.VISIBLE);
+                findViewById(R.id.deleteRow).setVisibility(View.GONE);
+            }
+        });
+
+        btnCancel.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                for (int i = 0; i < lvwSongs.getChildCount(); i++){
+                    lvwSongs.setCheckbox(false, i);
+                }
+                checkBoxesVisible = false;
+                lvwSongs.showCheckboxes(checkBoxesVisible);
+                findViewById(R.id.newRow).setVisibility(View.VISIBLE);
+                findViewById(R.id.deleteRow).setVisibility(View.GONE);
+            }
+
+        });
+
 
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
