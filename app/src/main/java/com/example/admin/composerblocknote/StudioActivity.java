@@ -1,6 +1,7 @@
 package com.example.admin.composerblocknote;
 
 import android.Manifest;
+import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
@@ -8,6 +9,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Toast;
 
@@ -21,6 +24,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Credits to Sylvain Saurel for his tutorial on Android:: audio recorder.
@@ -35,27 +40,52 @@ public class StudioActivity extends AppCompatActivity {
     private StudioManagerView studioView;
     private String currentPath;
 
+    private String mainDirName = "ComposerBlockNote";
+    private File baseFolder;
+
 
     public void onBackPressed(){
         System.out.println("finished");
         finish();
     }
-    /*
-    Aller sur la page de choix des parties, pas sur le créatieur de musiques,
-    vu que nous sommes ici... LA MUSIQUE EXISTE DEJA!!!
+    /* Aller sur la page de choix des parties, pas sur le créateur de musiques.
+    */
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent msg) {
 
         switch(keyCode) {
             case(KeyEvent.KEYCODE_BACK):
-                Intent a1_intent = new Intent(this, A1Activity.class);
-                startActivity(a1_intent);
+                Intent intent = new Intent(this, PartNavigatorActivity.class);
+                String name = (String) getIntent().getExtras().get("songName");
+                FileManager fm = new FileManager(this.getBaseContext(),this);
+                baseFolder = fm.getMusicStorageDir(mainDirName);
+                if (baseFolder == null){
+                    baseFolder = fm.createMusicStorageDir(mainDirName);
+                }
+
+                Log.d("DEBUGMA", "1------------------------------------------------");
+                Set<String> keys = this.getIntent().getExtras().keySet();
+
+                for (String key : keys)
+                {
+                    Log.d("DEBUGMA_LIST", key);
+                }
+
+                Log.d("DEBUGMA", "2------------------------------------------");
+                Log.d("DEBUGMA_LIFE", name);
+                Log.d("DEBUGMA_LIFE", mainDirName);
+                Log.d("DEBUGMA_LIFE", baseFolder.getName());
+
+                intent.putExtra("songName", name);
+                intent.putExtra("mainDir", mainDirName);
+                intent.putExtra("initMainDir", baseFolder);
+
+                startActivity(intent);
                 finish();
-                return true
+                return true;
         }
         return false;
     }
-    */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
