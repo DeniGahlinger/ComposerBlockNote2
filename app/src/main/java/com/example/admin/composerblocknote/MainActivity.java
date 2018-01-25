@@ -19,6 +19,7 @@ import android.widget.ListView;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import static android.os.Environment.getExternalStorageDirectory;
@@ -100,16 +101,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 ArrayList<Integer> indexes = lvwSongs.getSelectedIndexes();
-                for (int i = 0; i < indexes.size(); i++){
-                    for (File f : baseFolder.listFiles()){
-                        if (f.getName().equals(songName.get(i))){
-                            delR(f);
-                            songName.remove(i);
-                            ((BaseAdapter)lvwSongs.getAdapter()).notifyDataSetChanged();
-                            break;
-                        }
+                ArrayList<String> toRemove = new ArrayList<String>();
+
+                for (int e : indexes){
+                    toRemove.add(songName.get(e));
+                }
+
+                for (File f : baseFolder.listFiles()){
+                    if (toRemove.contains(f.getName())){
+                        songName.remove(f.getName());
+                        delR(f);
+                        ((BaseAdapter)lvwSongs.getAdapter()).notifyDataSetChanged();
                     }
                 }
+
                 lvwSongs.showCheckboxes(false);
                 checkBoxesVisible = false;
                 findViewById(R.id.newRow).setVisibility(View.VISIBLE);
@@ -128,7 +133,6 @@ public class MainActivity extends AppCompatActivity {
                 findViewById(R.id.newRow).setVisibility(View.VISIBLE);
                 findViewById(R.id.deleteRow).setVisibility(View.GONE);
             }
-
         });
 
 
