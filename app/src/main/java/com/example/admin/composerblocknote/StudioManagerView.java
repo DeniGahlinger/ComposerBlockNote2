@@ -218,6 +218,7 @@ public class StudioManagerView extends View {
                         if(mouseX != -1 && isPlaying == false){
                             if(touchState == 0 || touchState == 2) {
                                 for (int i = 0; i < audioData.size(); i++) {
+                                    boolean mustBeChangedButOutOfRectangle = true;
                                     if (event.getX() > (getWidth() / 2) + audioData.get(i).getDelay() * zoom / 60000f - (cursorPosition * zoom / 60000f)) {
                                         if (event.getX() < (getWidth() / 2) + audioData.get(i).getDelay() * zoom / 60000f + audioData.get(i).getLength() * zoom / 60000f - (cursorPosition * zoom / 60000f)) {
                                             if (event.getY() > getPaddingTop() + 55 + i * trackHeight) {
@@ -226,9 +227,15 @@ public class StudioManagerView extends View {
                                                     touchObjectId = i;
                                                     audioData.get(i).setDelay(audioData.get(i).getDelay() - (int) ((mouseX - event.getX()) * 60000 / zoom));
                                                     mustSaveAudios = true;
+                                                    mustBeChangedButOutOfRectangle = false;
                                                 }
                                             }
                                         }
+                                    }
+                                    Log.d("TOUCHSTATE", "Save " + mustSaveAudios + "touchState : " + touchState + ", objID : " + touchObjectId + ", for i = " + i);
+                                    if(mustBeChangedButOutOfRectangle && touchObjectId == i){
+                                        audioData.get(i).setDelay(audioData.get(i).getDelay() - (int) ((mouseX - event.getX()) * 60000 / zoom));
+                                        mustSaveAudios = true;
                                     }
                                 }
                             }
