@@ -2,14 +2,11 @@ package com.example.admin.composerblocknote;
 
 import android.Manifest;
 import android.content.Intent;
-import android.graphics.PorterDuff;
-import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Toast;
@@ -19,22 +16,16 @@ import com.cuboid.cuboidcirclebutton.CuboidButton;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Credits to Sylvain Saurel for his tutorial on Android:: audio recorder.
  */
 public class StudioActivity extends AppCompatActivity {
-    private static MediaPlayer mediaPlayer;
     private CuboidButton recordStop, play;
     private MediaRecorder myAudioRecorder;
-    private String outputFile;
     private boolean recording = false;
     private boolean playing = false;
     private StudioManagerView studioView;
@@ -86,12 +77,8 @@ public class StudioActivity extends AppCompatActivity {
         File currentFile = new File(currentPath);
         studioView.setPath(currentPath);
         studioView.openSongData(currentFile.getParent());
-        if((boolean)getIntent().getExtras().get("newPart")){
-            studioView.openExistingPartData(currentFile.getAbsolutePath());
-        }
         readAudioDataNodes(currentPath + "/.notes");
         readChordDataNodes(currentPath + "/.chords");
-        outputFile = currentPath+"/" +"1.3gp";
 
         recordStop.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -138,8 +125,8 @@ public class StudioActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), "Audio Recorded succesfully", Toast.LENGTH_LONG).show();
                         studioView.stop();
                         try{
-                            writeAudioDataNodes(currentPath + "/.notes");
-                            writeChordDataNodes(currentPath + "/.chords");
+                            writeAudioDataNodes();
+                            writeChordDataNodes();
                         }
                         catch(FileNotFoundException fnfe){
                             fnfe.printStackTrace();
@@ -166,37 +153,11 @@ public class StudioActivity extends AppCompatActivity {
             }
         });
     }
-    private void writeAudioDataNodes(String path) throws FileNotFoundException, IOException{
+    private void writeAudioDataNodes() throws IOException{
         studioView.saveAudioData();
-        /*try{
-            FileOutputStream fos =  new FileOutputStream(path);
-            ObjectOutputStream out = new ObjectOutputStream(fos);
-            out.writeObject(studioView.getAudioData());
-            out.close();
-            fos.close();
-        }
-        catch(FileNotFoundException fnfe){
-            throw(fnfe);
-        }
-        catch(IOException ioe){
-            throw(ioe);
-        }*/
     }
-    private void writeChordDataNodes(String path) throws FileNotFoundException, IOException{
+    private void writeChordDataNodes() throws IOException{
         studioView.saveChordData();
-        /*try{
-            FileOutputStream fos =  new FileOutputStream(path);
-            ObjectOutputStream out = new ObjectOutputStream(fos);
-            out.writeObject(studioView.getChordData());
-            out.close();
-            fos.close();
-        }
-        catch(FileNotFoundException fnfe){
-            throw(fnfe);
-        }
-        catch(IOException ioe){
-            throw(ioe);
-        }*/
     }
 
     private void readAudioDataNodes(String path){

@@ -13,7 +13,7 @@ import java.util.ArrayList;
  * Created by narval on 12/01/2018.
  * Custom adapter to support our custom listview
  */
-class ListViewCB extends ListView {
+public class ListViewCB extends ListView {
     public ListViewCB(Context context) {
         super(context);
     }
